@@ -4,8 +4,12 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite"
+    "dev": "bun run server.ts",
+    "dev:spa": "vite",
+    "build": "bun run build:client && bun run build:server",
+    "build:client": "vite build --outDir dist/client",
+    "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
+    "start": "NODE_ENV=production bun run server.ts"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -65,6 +69,8 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
+    "@types/node": "^25.2.3",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
     "vite": "6.3.5"
