@@ -1,11 +1,11 @@
+# namearchive.org
 
-  # Baby Name Trends Site
+This project runs on Bun and now includes a server-side rendering setup with Vite.
 
-  This is a code bundle for Baby Name Trends Site. The original project is available at https://www.figma.com/design/HmiCs39GQwCS2c4BJmIdCr/Baby-Name-Trends-Site.
+## Commands
 
-  ## Running the code
-
-  Run `npm i` to install the dependencies.
-
-  Run `npm run dev` to start the development server.
-  
+- Install dependencies: `bun install`
+- Run SSR dev server: `bun run dev`
+- Run SPA dev server (Vite only): `bun run dev:spa`
+- Build SSR bundles: `bun run build`
+- Run production SSR server: `bun run start`
