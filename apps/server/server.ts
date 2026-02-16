@@ -1,11 +1,13 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createServer as createHttpServer } from 'node:http';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createServer as createViteServer, type ViteDevServer } from 'vite';
 
 const isProd = process.env.NODE_ENV === 'production';
 const port = Number(process.env.PORT ?? 5173);
-const cwd = process.cwd();
+const serverRoot = path.dirname(fileURLToPath(import.meta.url));
+const clientRoot = path.resolve(serverRoot, '../client');
 
 const CONTENT_TYPES: Record<string, string> = {
   '.css': 'text/css',
@@ -27,7 +29,8 @@ async function tryServeStaticAsset(urlPath: string, res: import('node:http').Ser
     return false;
   }
 
-  const assetPath = path.join(cwd, 'dist/client', urlPath);
+  const normalizedAssetPath = urlPath.replace(/^\//, '');
+  const assetPath = path.join(clientRoot, 'dist/client', normalizedAssetPath);
 
   try {
     const body = await fs.readFile(assetPath);
@@ -51,13 +54,14 @@ async function renderPage(
   let render: (url: string) => string | Promise<string>;
 
   if (vite) {
-    template = await fs.readFile(path.join(cwd, 'index.html'), 'utf-8');
+    template = await fs.readFile(path.join(clientRoot, 'index.html'), 'utf-8');
     template = await vite.transformIndexHtml(url, template);
     const entry = await vite.ssrLoadModule('/src/entry-server.tsx');
     render = entry.render;
   } else {
-    template = await fs.readFile(path.join(cwd, 'dist/client/index.html'), 'utf-8');
-    const entry = await import(path.join(cwd, 'dist/server/entry-server.js'));
+    template = await fs.readFile(path.join(clientRoot, 'dist/client/index.html'), 'utf-8');
+    const serverEntryPath = path.join(clientRoot, 'dist/server/entry-server.js');
+    const entry = await import(pathToFileURL(serverEntryPath).href);
     render = entry.render;
   }
 
@@ -73,6 +77,7 @@ async function start() {
   const vite = isProd
     ? null
     : await createViteServer({
+        root: clientRoot,
         appType: 'custom',
         server: { middlewareMode: true },
       });

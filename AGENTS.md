@@ -7,8 +7,8 @@
 ## Standard Commands
 - Install dependencies: `bun install`
 - Start SSR dev server: `bun run dev`
-- Start SPA dev server (no SSR): `bun run dev:spa`
-- Build client and server bundles: `bun run build`
+- Start client-only dev server: `bun run dev:client`
+- Build client and SSR bundles: `bun run build`
 - Start production SSR server: `bun run start`
 
 ## Dependency Changes
