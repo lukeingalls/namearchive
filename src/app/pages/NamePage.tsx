@@ -8,13 +8,13 @@ export function NamePage() {
   
   if (!name || !babyNamesDatabase[name]) {
     return (
-      <div className="min-h-screen bg-[#f5f1e8] flex items-center justify-center p-8">
+      <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <h1 className="text-4xl text-[#4a3f2f] mb-4" style={{ fontFamily: 'Georgia, serif' }}>
             Name Not Found
           </h1>
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="text-[#8b6914] hover:underline"
             style={{ fontFamily: 'Georgia, serif' }}
           >
@@ -33,7 +33,7 @@ export function NamePage() {
   const startYear = currentData[0];
 
   return (
-    <div className="min-h-screen bg-[#f5f1e8]">
+    <div>
       {/* Navigation */}
       <div className="border-b-2 border-[#d4b896] bg-[#ebe4d1]">
         <div className="max-w-6xl mx-auto px-6 py-4">

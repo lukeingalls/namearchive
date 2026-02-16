@@ -6,14 +6,14 @@ export function HomePage() {
   const popularNames = availableNames;
 
   return (
-    <div className="min-h-screen bg-[#f5f1e8] p-6 md:p-12">
+    <div className="p-6 md:p-12">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Baby className="size-12 text-[#8b6914]" />
             <h1 className="text-6xl text-[#4a3f2f]" style={{ fontFamily: 'Georgia, serif' }}>
-              Baby Name Archives
+              name archive
             </h1>
           </div>
           <p className="text-xl text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
@@ -55,7 +55,6 @@ export function HomePage() {
           ))}
         </div>
 
-        {/* Footer */}
         <div className="mt-16 text-center text-[#8b7355] text-sm">
           <p style={{ fontFamily: 'Georgia, serif' }}>
             Data represents relative popularity over time • Peak year normalized to 100%
