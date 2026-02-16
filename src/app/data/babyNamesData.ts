@@ -16,14 +16,22 @@ function generateTrendData(
   startCount: number,
   peakYear: number,
   peakCount: number,
-  endCount: number
+  endCount: number,
 ): NameData[] {
   const data: NameData[] = [];
-  
+
   for (let year = 1900; year <= 2026; year++) {
     let count: number;
-    
-    if (year < peakYear) {
+
+    if (peakYear >= 2026) {
+      // If the peak is at the end of the series, model a rise only.
+      const progress = (year - 1900) / (2026 - 1900);
+      count = startCount + (peakCount - startCount) * progress;
+    } else if (peakYear <= 1900) {
+      // If the peak is at the start, model a decline only.
+      const progress = (year - 1900) / (2026 - 1900);
+      count = peakCount - (peakCount - endCount) * progress;
+    } else if (year < peakYear) {
       // Rise to peak
       const progress = (year - 1900) / (peakYear - 1900);
       count = startCount + (peakCount - startCount) * progress;
@@ -32,20 +40,20 @@ function generateTrendData(
       const progress = (year - peakYear) / (2026 - peakYear);
       count = peakCount - (peakCount - endCount) * progress;
     }
-    
+
     // Add some random variation
     const variation = (Math.random() - 0.5) * count * 0.1;
     count = Math.max(0, Math.round(count + variation));
-    
+
     data.push({ year, count, percentage: 0 }); // percentage will be calculated next
   }
-  
+
   // Calculate percentages relative to peak
-  const maxCount = Math.max(...data.map(d => d.count));
-  data.forEach(item => {
+  const maxCount = Math.max(...data.map((d) => d.count));
+  data.forEach((item) => {
     item.percentage = (item.count / maxCount) * 100;
   });
-  
+
   return data;
 }
 
@@ -78,6 +86,9 @@ export const babyNamesDatabase: Record<string, NameData[]> = {
   Evelyn: generateTrendData(4200, 1920, 15600, 9800),
   Ella: generateTrendData(800, 2012, 11900, 10200),
   Grace: generateTrendData(2800, 2003, 12900, 6900),
+  Claude: generateTrendData(1800, 1910, 9200, 2800),
+  ChatGPT: generateTrendData(0, 2026, 2600, 2500),
+  Grok: generateTrendData(0, 2026, 1400, 1350),
 };
 
 export const availableNames = Object.keys(babyNamesDatabase).sort();

@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router';
-import { babyNamesDatabase } from '../data/babyNamesData';
+import { babyNamesDatabase, availableNames } from '../data/babyNamesData';
 import { NameTrendChart } from '../components/NameTrendChart';
-import { ArrowLeft, Calendar, TrendingUp, Activity } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Baby, Calendar, TrendingUp, Activity } from 'lucide-react';
 
 export function NamePage() {
   const { name } = useParams<{ name: string }>();
@@ -26,6 +26,12 @@ export function NamePage() {
   }
 
   const currentData = babyNamesDatabase[name];
+  const currentNameIndex = availableNames.indexOf(name);
+  const previousName = currentNameIndex > 0 ? availableNames[currentNameIndex - 1] : null;
+  const nextName =
+    currentNameIndex >= 0 && currentNameIndex < availableNames.length - 1
+      ? availableNames[currentNameIndex + 1]
+      : null;
   const peakData = currentData.reduce((max, item) => 
     item.count > max.count ? item : max
   );
@@ -50,17 +56,18 @@ export function NamePage() {
 
       <div className="max-w-6xl mx-auto px-6 py-12">
         {/* Name Header */}
-        <div className="text-center mb-12">
-          <div className="inline-block">
-            <div className="bg-[#ebe4d1] border-4 border-[#8b6914] rounded-lg px-12 py-8 shadow-2xl">
-              <h1 
-                className="text-7xl text-[#4a3f2f] mb-2" 
-                style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.02em' }}
-              >
-                babies named <span className="text-[#8b6914]">{name}</span>
-              </h1>
-              <div className="h-1 bg-[#8b6914] w-full mt-4" />
-            </div>
+        <div className="text-center mb-10">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <Baby className="size-10 text-[#8b6914]" />
+            <h1 className="text-6xl text-[#4a3f2f]" style={{ fontFamily: 'Georgia, serif' }}>
+              {name}
+            </h1>
+          </div>
+          <p className="text-xl text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
+            A historical popularity profile from 1900 to 2026
+          </p>
+          <div className="mt-4 text-sm text-[#8b7355]">
+            Peak year: {peakData.year} • Current level: {currentYear.percentage.toFixed(0)}% of peak
           </div>
         </div>
 
@@ -70,7 +77,7 @@ export function NamePage() {
             <div className="flex items-center gap-3 mb-3">
               <Calendar className="size-6 text-[#8b6914]" />
               <h3 className="text-lg text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
-                Peak Year
+                Highest Usage Year
               </h3>
             </div>
             <p className="text-5xl text-[#8b6914]" style={{ fontFamily: 'Georgia, serif' }}>
@@ -85,7 +92,7 @@ export function NamePage() {
             <div className="flex items-center gap-3 mb-3">
               <TrendingUp className="size-6 text-[#8b6914]" />
               <h3 className="text-lg text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
-                Current Trend
+                Current Level
               </h3>
             </div>
             <p className="text-5xl text-[#8b6914]" style={{ fontFamily: 'Georgia, serif' }}>
@@ -100,7 +107,7 @@ export function NamePage() {
             <div className="flex items-center gap-3 mb-3">
               <Activity className="size-6 text-[#8b6914]" />
               <h3 className="text-lg text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
-                Change Since 1900
+                Net Change Since 1900
               </h3>
             </div>
             <p className="text-5xl text-[#8b6914]" style={{ fontFamily: 'Georgia, serif' }}>
@@ -119,7 +126,7 @@ export function NamePage() {
             className="text-3xl text-[#4a3f2f] mb-6 text-center" 
             style={{ fontFamily: 'Georgia, serif' }}
           >
-            Historical Trend Analysis
+            Popularity Trend
           </h2>
           <div className="bg-[#f5f1e8] border border-[#d4b896] rounded-lg p-6">
             <NameTrendChart data={currentData} name={name} />
@@ -132,14 +139,42 @@ export function NamePage() {
         {/* Interpretation */}
         <div className="mt-12 bg-[#e0d4bb] border-2 border-[#c4a886] rounded-lg p-8 shadow-lg">
           <h3 className="text-2xl text-[#4a3f2f] mb-4" style={{ fontFamily: 'Georgia, serif' }}>
-            About This Data
+            How to Read This
           </h3>
           <p className="text-[#4a3f2f] leading-relaxed" style={{ fontFamily: 'Georgia, serif' }}>
-            This chart shows the relative popularity of the name <span className="font-semibold">{name}</span> from 
-            1900 to 2026. The peak year ({peakData.year}) is normalized to 100%, and all other years are shown 
-            as a percentage of that peak. This allows you to see the rise and fall of the name's popularity 
-            independent of overall population growth.
+            This chart shows relative popularity for <span className="font-semibold">{name}</span> from 1900 to
+            2026. The peak year ({peakData.year}) is set to 100%, and every other year is shown against that high
+            point. That makes it easier to compare rise-and-fall patterns without population-size distortion.
           </p>
+        </div>
+
+        {/* Adjacent Names Navigation */}
+        <div className="mt-10 flex items-center justify-between gap-4">
+          {previousName ? (
+            <Link
+              to={`/n/${previousName}`}
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#d4b896] bg-[#ebe4d1] px-5 py-3 text-[#8b6914] hover:bg-[#e0d4bb] hover:border-[#c4a886] transition-all"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              <ArrowLeft className="size-4" />
+              Back: {previousName}
+            </Link>
+          ) : (
+            <div />
+          )}
+
+          {nextName ? (
+            <Link
+              to={`/n/${nextName}`}
+              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#d4b896] bg-[#ebe4d1] px-5 py-3 text-[#8b6914] hover:bg-[#e0d4bb] hover:border-[#c4a886] transition-all"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              Next: {nextName}
+              <ArrowRight className="size-4" />
+            </Link>
+          ) : (
+            <div />
+          )}
         </div>
       </div>
     </div>

@@ -1,9 +1,37 @@
 import { Link } from 'react-router';
-import { availableNames } from '../data/babyNamesData';
+import { availableNames, babyNamesDatabase } from '../data/babyNamesData';
 import { TrendingUp, Baby } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
+
+function NameSparkline({ name, compact = false }: { name: string; compact?: boolean }) {
+  const data = babyNamesDatabase[name]
+    .filter((_, index) => index % 4 === 0)
+    .map((item) => ({
+      year: item.year,
+      percentage: item.percentage,
+    }));
+
+  return (
+    <div className={`w-full mt-3 ${compact ? 'h-7' : 'h-14'}`}>
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data}>
+          <Line
+            type="monotone"
+            dataKey="percentage"
+            stroke="#8b6914"
+            strokeWidth={compact ? 1.5 : 2}
+            dot={false}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 
 export function HomePage() {
   const popularNames = availableNames;
+  const trendingNames = ['Claude', 'ChatGPT', 'Grok'];
 
   return (
     <div className="p-6 md:p-12">
@@ -31,6 +59,33 @@ export function HomePage() {
           </p>
         </div>
 
+        {/* Trending */}
+        <div className="bg-[#e8ddc4] border-2 border-[#c4a886] rounded-lg p-8 mb-12 shadow-lg">
+          <div className="flex items-center gap-2 mb-6">
+            <TrendingUp className="size-6 text-[#8b6914]" />
+            <h2 className="text-3xl text-[#4a3f2f]" style={{ fontFamily: 'Georgia, serif' }}>
+              Trending
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {trendingNames.map((name) => (
+              <Link
+                key={name}
+                to={`/n/${name}`}
+                className="bg-[#f5f1e8] border-2 border-[#d4b896] rounded-lg p-5 hover:bg-[#efe6d4] hover:border-[#c4a886] transition-all"
+              >
+                <div className="text-xl text-[#4a3f2f]" style={{ fontFamily: 'Georgia, serif' }}>
+                  {name}
+                </div>
+                <p className="text-sm text-[#8b7355] mt-1" style={{ fontFamily: 'Georgia, serif' }}>
+                  Noteworthy momentum in recent years
+                </p>
+                <NameSparkline name={name} />
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {/* Names Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {popularNames.map((name) => (
@@ -45,10 +100,7 @@ export function HomePage() {
                   <h3 className="text-2xl text-[#4a3f2f] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
                     {name}
                   </h3>
-                  <div className="flex items-center justify-center gap-1 text-[#8b7355] text-sm">
-                    <TrendingUp className="size-4" />
-                    <span>View Trends</span>
-                  </div>
+                  <NameSparkline name={name} compact />
                 </div>
               </div>
             </Link>
