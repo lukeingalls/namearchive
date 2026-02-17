@@ -17,6 +17,14 @@ export interface NamePageData {
   nextName: string | null;
 }
 
+function toSentenceCase(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return trimmed;
+  }
+  return `${trimmed[0].toUpperCase()}${trimmed.slice(1).toLowerCase()}`;
+}
+
 const serverRoot = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(serverRoot, "data");
 const dbPath = path.join(dataDir, "namearchive.sqlite");
@@ -49,6 +57,14 @@ db.run(`
   CREATE TABLE IF NOT EXISTS metadata (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
+  );
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS invalid_names (
+    name TEXT PRIMARY KEY COLLATE NOCASE,
+    reason TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
 `);
 
@@ -117,8 +133,9 @@ function seedDatabase() {
 
     const sortedNames = Object.keys(nameTrendPoints).sort((a, b) => a.localeCompare(b));
     for (const name of sortedNames) {
-      insertName.run(name);
-      const row = getNameId.get(name) as { id: number } | undefined;
+      const sentenceCaseName = toSentenceCase(name);
+      insertName.run(sentenceCaseName);
+      const row = getNameId.get(sentenceCaseName) as { id: number } | undefined;
       if (!row) {
         continue;
       }
@@ -157,6 +174,7 @@ seedDatabaseIfNeeded();
 const getCanonicalNameQuery = db.query(
   "SELECT name FROM names WHERE lower(name) = lower(?1) LIMIT 1;",
 );
+const getNameByIdQuery = db.query("SELECT id, name FROM names WHERE lower(name) = lower(?1) LIMIT 1;");
 
 const getAllNamesQuery = db.query(
   "SELECT name FROM names ORDER BY name COLLATE NOCASE ASC;",
@@ -169,6 +187,9 @@ const getNameTrendQuery = db.query(`
   WHERE lower(n.name) = lower(?1)
   ORDER BY t.year ASC;
 `);
+const isInvalidNameQuery = db.query(
+  "SELECT name FROM invalid_names WHERE lower(name) = lower(?1) LIMIT 1;",
+);
 
 export function getCanonicalName(input: string): string | null {
   const row = getCanonicalNameQuery.get(input) as { name: string } | undefined;
@@ -213,4 +234,66 @@ export function getNamePageData(name: string): NamePageData | null {
     previousName,
     nextName,
   };
+}
+
+export function isInvalidName(name: string): boolean {
+  const row = isInvalidNameQuery.get(name) as { name: string } | undefined;
+  return !!row;
+}
+
+export function addInvalidName(name: string, reason: string) {
+  db.query(
+    `
+      INSERT INTO invalid_names (name, reason)
+      VALUES (?1, ?2)
+      ON CONFLICT(name) DO UPDATE SET
+        reason = excluded.reason,
+        created_at = CURRENT_TIMESTAMP;
+    `,
+  ).run(toSentenceCase(name), reason);
+}
+
+export function removeInvalidName(name: string) {
+  db.query("DELETE FROM invalid_names WHERE lower(name) = lower(?1);").run(name);
+}
+
+export function insertOrUpdateGeneratedName(
+  name: string,
+  points: Record<number, number>,
+) {
+  const canonicalName = toSentenceCase(name);
+  const trend = interpolateTrendData(canonicalName, points);
+
+  const upsertTx = db.transaction(() => {
+    const existing = getNameByIdQuery.get(canonicalName) as
+      | { id: number; name: string }
+      | undefined;
+
+    let nameId: number;
+    if (existing) {
+      nameId = existing.id;
+      db.query("UPDATE names SET name = ?1 WHERE id = ?2;").run(canonicalName, nameId);
+      db.query("DELETE FROM name_trends WHERE name_id = ?1;").run(nameId);
+    } else {
+      db.query("INSERT INTO names (name) VALUES (?1);").run(canonicalName);
+      const inserted = getNameByIdQuery.get(canonicalName) as
+        | { id: number; name: string }
+        | undefined;
+      if (!inserted) {
+        throw new Error(`Unable to create name row for ${canonicalName}`);
+      }
+      nameId = inserted.id;
+    }
+
+    const insertTrend = db.query(
+      "INSERT INTO name_trends (name_id, year, count, percentage) VALUES (?1, ?2, ?3, ?4);",
+    );
+    for (const point of trend) {
+      insertTrend.run(nameId, point.year, point.count, point.percentage);
+    }
+
+    removeInvalidName(canonicalName);
+  });
+
+  upsertTx();
 }
