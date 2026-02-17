@@ -38,3 +38,24 @@ export function createStaticAssetHandler(clientRoot: string) {
     }
   };
 }
+
+export function createStaticFileHandler(clientRoot: string, fileName: string) {
+  return async function handleStaticFile(
+    _context: RouteContext,
+    _req: import("node:http").IncomingMessage,
+    res: import("node:http").ServerResponse,
+  ) {
+    const filePath = path.join(clientRoot, "dist/client", fileName);
+
+    try {
+      const body = await fs.readFile(filePath);
+      res.statusCode = 200;
+      res.setHeader("Content-Type", contentTypeFor(filePath));
+      res.end(body);
+    } catch {
+      res.statusCode = 404;
+      res.setHeader("Content-Type", "text/plain");
+      res.end("Not found");
+    }
+  };
+}

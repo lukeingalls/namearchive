@@ -2,7 +2,10 @@ import type { PathRouter } from "../router/path-router";
 import type { ViteDevServer } from "vite";
 import { createOgImageHandler } from "./handlers/og-image";
 import { createRenderPageHandler } from "./handlers/render-page";
-import { createStaticAssetHandler } from "./handlers/static-assets";
+import {
+  createStaticAssetHandler,
+  createStaticFileHandler,
+} from "./handlers/static-assets";
 
 interface RegisterPageRoutesOptions {
   serverRoot: string;
@@ -14,9 +17,18 @@ export function registerPageRoutes(
   router: PathRouter,
   options: RegisterPageRoutesOptions,
 ) {
-  router.on("GET", "/og/name/:name.png", createOgImageHandler(options.serverRoot));
+  router.on(
+    "GET",
+    "/og/name/:name.png",
+    createOgImageHandler(options.serverRoot),
+  );
   if (!options.vite) {
     router.on("GET", "/assets/*", createStaticAssetHandler(options.clientRoot));
+    router.on(
+      "GET",
+      "/favicon.webp",
+      createStaticFileHandler(options.clientRoot, "favicon.webp"),
+    );
   }
   router.on(
     "GET",
