@@ -19,6 +19,7 @@ steps:
       - |
         tar \
           --exclude=.git \
+          --exclude=namearchive-release.tgz \
           --exclude=node_modules \
           --exclude=apps/client/node_modules \
           --exclude=apps/server/node_modules \
