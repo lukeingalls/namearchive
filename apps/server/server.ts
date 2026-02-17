@@ -3,6 +3,8 @@ import path from 'node:path';
 import { createServer as createHttpServer } from 'node:http';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createServer as createViteServer, type ViteDevServer } from 'vite';
+import { serveOgImageRequest, ensureOgImage } from './og-images';
+import { getNameFromPath, getPageMeta, renderHeadTags } from './meta';
 
 const isProd = process.env.NODE_ENV === 'production';
 const port = Number(process.env.PORT ?? 5173);
@@ -22,6 +24,25 @@ const CONTENT_TYPES: Record<string, string> = {
 function contentTypeFor(filePath: string): string {
   const ext = path.extname(filePath);
   return CONTENT_TYPES[ext] ?? 'application/octet-stream';
+}
+
+function requestOrigin(req: import('node:http').IncomingMessage): string {
+  const forwardedProto = req.headers['x-forwarded-proto'];
+  const protocol = Array.isArray(forwardedProto)
+    ? forwardedProto[0]
+    : forwardedProto ?? 'http';
+
+  const hostHeader = req.headers.host ?? `localhost:${port}`;
+  return `${protocol}://${hostHeader}`;
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 async function tryServeStaticAsset(urlPath: string, res: import('node:http').ServerResponse) {
@@ -46,7 +67,9 @@ async function tryServeStaticAsset(urlPath: string, res: import('node:http').Ser
 }
 
 async function renderPage(
-  url: string,
+  pathnameWithSearch: string,
+  pathname: string,
+  origin: string,
   vite: ViteDevServer | null,
   res: import('node:http').ServerResponse,
 ) {
@@ -55,7 +78,7 @@ async function renderPage(
 
   if (vite) {
     template = await fs.readFile(path.join(clientRoot, 'index.html'), 'utf-8');
-    template = await vite.transformIndexHtml(url, template);
+    template = await vite.transformIndexHtml(pathnameWithSearch, template);
     const entry = await vite.ssrLoadModule('/src/entry-server.tsx');
     render = entry.render;
   } else {
@@ -65,8 +88,14 @@ async function renderPage(
     render = entry.render;
   }
 
-  const appHtml = await render(url);
-  const html = template.replace('<!--ssr-outlet-->', appHtml);
+  const meta = getPageMeta(pathname, origin);
+  const headTags = renderHeadTags(pathname, origin, meta);
+  const appHtml = await render(pathnameWithSearch);
+
+  const html = template
+    .replace('<!--ssr-outlet-->', appHtml)
+    .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(meta.title)}</title>`)
+    .replace('<!--head-tags-->', headTags);
 
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html');
@@ -83,22 +112,35 @@ async function start() {
       });
 
   const server = createHttpServer(async (req, res) => {
-    const url = req.url ?? '/';
+    const origin = requestOrigin(req);
+    const parsedUrl = new URL(req.url ?? '/', origin);
+    const pathname = parsedUrl.pathname;
+    const pathnameWithSearch = `${parsedUrl.pathname}${parsedUrl.search}`;
 
     try {
+      const servedOg = await serveOgImageRequest(serverRoot, pathname, res);
+      if (servedOg) {
+        return;
+      }
+
+      const requestedName = getNameFromPath(pathname);
+      if (requestedName) {
+        await ensureOgImage(serverRoot, requestedName);
+      }
+
       if (vite) {
         vite.middlewares(req, res, async () => {
-          await renderPage(url, vite, res);
+          await renderPage(pathnameWithSearch, pathname, origin, vite, res);
         });
         return;
       }
 
-      const served = await tryServeStaticAsset(url, res);
+      const served = await tryServeStaticAsset(pathname, res);
       if (served) {
         return;
       }
 
-      await renderPage(url, null, res);
+      await renderPage(pathnameWithSearch, pathname, origin, null, res);
     } catch (error) {
       if (vite && error instanceof Error) {
         vite.ssrFixStacktrace(error);
