@@ -14,7 +14,7 @@ fi
 
 sudo mkdir -p \
   "${APP_DIR}/releases" \
-  "${APP_DIR}/shared/data" \
+  "${APP_DIR}/shared/db" \
   "${APP_DIR}/shared/og-cache"
 sudo chown -R "${APP_USER}:${APP_USER}" "${APP_DIR}"
 

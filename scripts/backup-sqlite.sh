@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DB_PATH="${DB_PATH:-/opt/namearchive/shared/data/namearchive.sqlite}"
+DB_PATH="${DB_PATH:-/opt/namearchive/shared/db/namearchive.sqlite}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/namearchive}"
 BUCKET_NAME="${BUCKET_NAME:-}"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"

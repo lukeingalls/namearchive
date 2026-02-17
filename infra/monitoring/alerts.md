@@ -78,8 +78,8 @@ sudo systemctl stop namearchive
 2. Restore latest backup:
 
 ```bash
-sudo gunzip -c /var/backups/namearchive/<file>.sqlite.gz > /opt/namearchive/shared/data/namearchive.sqlite
-sudo chown namearchive:namearchive /opt/namearchive/shared/data/namearchive.sqlite
+sudo gunzip -c /var/backups/namearchive/<file>.sqlite.gz > /opt/namearchive/shared/db/namearchive.sqlite
+sudo chown namearchive:namearchive /opt/namearchive/shared/db/namearchive.sqlite
 ```
 
 3. Start app:

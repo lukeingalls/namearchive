@@ -60,6 +60,7 @@ Create app env:
 sudo tee /etc/namearchive.env >/dev/null <<'EOF'
 NODE_ENV=production
 PORT=8080
+NAMEARCHIVE_DB_DIR=/opt/namearchive/shared/db
 GEMINI_API_KEY=REPLACE_ME
 GEMINI_TIMEOUT_MS=12000
 GEMINI_MAX_RETRIES=1
@@ -73,7 +74,7 @@ Create backup env:
 
 ```bash
 sudo tee /etc/namearchive-backup.env >/dev/null <<'EOF'
-DB_PATH=/opt/namearchive/shared/data/namearchive.sqlite
+DB_PATH=/opt/namearchive/shared/db/namearchive.sqlite
 BACKUP_DIR=/var/backups/namearchive
 BUCKET_NAME=namearchive-sqlite-backups
 RETENTION_DAYS=30

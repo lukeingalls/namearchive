@@ -18,7 +18,7 @@ TimeoutStopSec=20
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=full
-ReadWritePaths=/opt/namearchive/shared/data /opt/namearchive/shared/og-cache
+ReadWritePaths=/opt/namearchive/shared/db /opt/namearchive/shared/og-cache
 
 [Install]
 WantedBy=multi-user.target

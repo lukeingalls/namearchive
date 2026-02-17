@@ -26,12 +26,14 @@ function toSentenceCase(value: string): string {
 }
 
 const serverRoot = path.dirname(fileURLToPath(import.meta.url));
-const dataDir = path.join(serverRoot, "data");
-const dbPath = path.join(dataDir, "namearchive.sqlite");
+const runtimeDataDir = process.env.NAMEARCHIVE_DB_DIR
+  ? path.resolve(process.env.NAMEARCHIVE_DB_DIR)
+  : path.join(serverRoot, "runtime-data");
+const dbPath = path.join(runtimeDataDir, "namearchive.sqlite");
 const DATASET_VERSION = "v5-rich-sparse-points";
 const HOME_PREVIEW_NAME_LIMIT = 50;
 
-mkdirSync(dataDir, { recursive: true });
+mkdirSync(runtimeDataDir, { recursive: true });
 
 const db = new Database(dbPath, { create: true });
 db.run("PRAGMA journal_mode = WAL;");
