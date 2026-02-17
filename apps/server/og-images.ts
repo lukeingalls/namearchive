@@ -3,7 +3,7 @@ import path from "node:path";
 import sharp from "sharp";
 import { getAllNames, getCanonicalName, getNameTrend } from "./db";
 
-export const CURRENT_OG_IMAGE_VERSION = "v3";
+export const CURRENT_OG_IMAGE_VERSION = "v4";
 
 const nameLookup = new Map(
   getAllNames().map((name) => [name.toLowerCase(), name]),
