@@ -33,9 +33,9 @@ export function NamePage() {
   const description = !name
     ? "We do not have records for this name yet. Explore other names in the archive."
     : pageData
-      ? `Explore historical popularity trends for ${effectiveName} from 1900 to 2026 on namearchive.org.`
+      ? `Explore historical popularity trends for baby name ${effectiveName} from 1900 to 2026 on namearchive.org.`
       : isLoading
-        ? `Loading historical popularity trends for ${effectiveName} on namearchive.org.`
+        ? `Loading historical popularity trends for baby name ${effectiveName} on namearchive.org.`
         : "We do not have records for this name yet. Explore other names in the archive.";
 
   useDocumentMeta(title, description);
@@ -133,7 +133,7 @@ export function NamePage() {
 
   async function handleShare() {
     const shareTitle = `${currentName} name trend`;
-    const shareText = `Explore historical popularity trends for ${currentName} on namearchive.org`;
+    const shareText = `Explore historical popularity trends for baby name ${currentName} on namearchive.org`;
     const shareUrl = window.location.href;
 
     if (navigator.share) {

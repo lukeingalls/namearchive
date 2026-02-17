@@ -39,7 +39,7 @@ export function getPageMeta(pathname: string, origin: string): PageMeta {
   if (canonicalName) {
     return {
       title: `${canonicalName} name trend | name archive`,
-      description: `Explore historical popularity trends for ${canonicalName} from 1900 to 2026 on namearchive.org.`,
+      description: `Explore historical popularity trends for baby name ${canonicalName} from 1900 to 2026 on namearchive.org.`,
       ogImage: `${origin}/og/name/${encodeURIComponent(canonicalName)}.png?v=${CURRENT_OG_IMAGE_VERSION}`,
     };
   }
@@ -99,10 +99,14 @@ export function renderHeadTags(
   ];
 
   if (meta.ogImage) {
-    tags.push(`<meta property="og:image" content="${escapeHtml(meta.ogImage)}" />`);
+    tags.push(
+      `<meta property="og:image" content="${escapeHtml(meta.ogImage)}" />`,
+    );
     tags.push('<meta property="og:image:width" content="1200" />');
     tags.push('<meta property="og:image:height" content="630" />');
-    tags.push(`<meta name="twitter:image" content="${escapeHtml(meta.ogImage)}" />`);
+    tags.push(
+      `<meta name="twitter:image" content="${escapeHtml(meta.ogImage)}" />`,
+    );
   }
 
   return tags.join("\n    ");
