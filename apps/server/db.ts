@@ -29,6 +29,7 @@ const serverRoot = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(serverRoot, "data");
 const dbPath = path.join(dataDir, "namearchive.sqlite");
 const DATASET_VERSION = "v5-rich-sparse-points";
+const HOME_PREVIEW_NAME_LIMIT = 50;
 
 mkdirSync(dataDir, { recursive: true });
 
@@ -179,6 +180,9 @@ const getNameByIdQuery = db.query("SELECT id, name FROM names WHERE lower(name) 
 const getAllNamesQuery = db.query(
   "SELECT name FROM names ORDER BY name COLLATE NOCASE ASC;",
 );
+const getHomePreviewNamesQuery = db.query(
+  "SELECT name FROM names ORDER BY name COLLATE NOCASE ASC LIMIT ?1;",
+);
 
 const getNameTrendQuery = db.query(`
   SELECT t.year as year, t.count as count, t.percentage as percentage
@@ -201,13 +205,18 @@ export function getAllNames(): string[] {
   return rows.map((row) => row.name);
 }
 
+function getHomePreviewNames(limit: number): string[] {
+  const rows = getHomePreviewNamesQuery.all(limit) as Array<{ name: string }>;
+  return rows.map((row) => row.name);
+}
+
 export function getNameTrend(name: string): NameData[] {
   const rows = getNameTrendQuery.all(name) as NameData[];
   return rows;
 }
 
 export function getHomeData(): { names: string[]; trends: Record<string, NameData[]> } {
-  const names = getAllNames();
+  const names = getHomePreviewNames(HOME_PREVIEW_NAME_LIMIT);
   const trends: Record<string, NameData[]> = {};
 
   for (const name of names) {
