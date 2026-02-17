@@ -7,7 +7,10 @@ export function createOgImageHandler(serverRoot: string) {
     _req: import("node:http").IncomingMessage,
     res: import("node:http").ServerResponse,
   ) {
-    const requestedName = context.params.name ?? "";
+    const rawName = context.params.name ?? context.params["name.png"] ?? "";
+    const requestedName = rawName.endsWith(".png")
+      ? rawName.slice(0, -4)
+      : rawName;
     if (!requestedName.trim()) {
       res.statusCode = 404;
       res.setHeader("Content-Type", "text/plain");
