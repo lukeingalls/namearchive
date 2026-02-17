@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createServer as createHttpServer } from "node:http";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { createServer as createViteServer, type ViteDevServer } from "vite";
+import { type ViteDevServer } from "vite";
 import { serveOgImageRequest, ensureOgImage } from "./og-images";
 import { getNameFromPath, getPageMeta, renderHeadTags } from "./meta";
 
@@ -118,24 +118,6 @@ async function start() {
   console.info(
     `Starting SSR server in ${isProd ? "production" : "development"} mode...`,
   );
-  const viteConfigPath = path.join(clientRoot, "vite.config.ts");
-  // console.info(`Finding vite config at ${viteConfigPath}`);
-  const vite = null;
-  // const vite = isProd
-  //   ? null
-  //   : await createViteServer({
-  //       root: clientRoot,
-  //       // Bun can hang resolving the full Vite config in middleware mode.
-  //       // Keep dev SSR boot reliable with an inline minimal config here.
-  //       configFile: viteConfigPath,
-  //       appType: "custom",
-  //       // server: { middlewareMode: true, hmr: false },
-  //       server: {
-  //         middlewareMode: true,
-  //         hmr: { protocol: "ws", host: "localhost", port: 5173 },
-  //       },
-  //     });
-  // console.info("Vite server initialized");
 
   const server = createHttpServer(async (req, res) => {
     console.info(`Received request: ${req.method} ${req.url}`);
@@ -155,13 +137,6 @@ async function start() {
         await ensureOgImage(serverRoot, requestedName);
       }
 
-      if (vite) {
-        vite.middlewares(req, res, async () => {
-          await renderPage(pathnameWithSearch, pathname, origin, vite, res);
-        });
-        return;
-      }
-
       const served = await tryServeStaticAsset(pathname, res);
       if (served) {
         return;
@@ -169,10 +144,6 @@ async function start() {
 
       await renderPage(pathnameWithSearch, pathname, origin, null, res);
     } catch (error) {
-      if (vite && error instanceof Error) {
-        vite.ssrFixStacktrace(error);
-      }
-
       const message =
         error instanceof Error
           ? (error.stack ?? error.message)

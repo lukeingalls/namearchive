@@ -62,8 +62,8 @@ function buildOgSvg(name: string): string {
   <text x="90" y="140" fill="#4a3f2f" font-size="86" font-family="Georgia, serif">${nameLabel}</text>
   <text x="1110" y="140" text-anchor="end" fill="#8b7355" font-size="34" font-family="Georgia, serif">namearchive.org</text>
   <text x="90" y="182" fill="#6b5d4f" font-size="21" font-family="Georgia, serif">Historical popularity trend preview</text>
-  <line x1="100" y1="510" x2="1100" y2="510" stroke="#c4a886" stroke-width="2" />
-  <line x1="100" y1="250" x2="100" y2="510" stroke="#c4a886" stroke-width="2" />
+  <line x1="100" y1="510" x2="1100" y2="510" stroke="#c4a886" stroke-width="4" />
+  <line x1="100" y1="250" x2="100" y2="510" stroke="#c4a886" stroke-width="4" />
   <polyline points="${sparklinePoints}" fill="none" stroke="url(#line)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round" />
   <circle cx="1100" cy="510" r="4" fill="#8b6914" />
   <text x="100" y="548" fill="#8b7355" font-size="24" font-family="Georgia, serif">1900</text>
