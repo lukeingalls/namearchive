@@ -38,7 +38,7 @@ export function getPageMeta(pathname: string, origin: string): PageMeta {
 
   if (canonicalName) {
     return {
-      title: `${canonicalName} name trend | name archive`,
+      title: `${canonicalName} name trend | namearchive.org`,
       description: `Explore historical popularity trends for baby name ${canonicalName} from 1900 to 2026 on namearchive.org.`,
       ogImage: `${origin}/og/name/${encodeURIComponent(canonicalName)}.png?v=${CURRENT_OG_IMAGE_VERSION}`,
     };

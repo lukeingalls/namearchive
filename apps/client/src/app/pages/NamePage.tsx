@@ -132,7 +132,7 @@ export function NamePage() {
   }
 
   async function handleShare() {
-    const shareTitle = `${currentName} name trend`;
+    const shareTitle = `${currentName} baby name trend | namearchive.org`;
     const shareText = `Explore historical popularity trends for baby name ${currentName} on namearchive.org`;
     const shareUrl = window.location.href;
 
