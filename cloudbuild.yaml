@@ -1,6 +1,6 @@
 substitutions:
-  _INSTANCE_NAME: namearchive-prod
-  _ZONE: us-central1-a
+  _INSTANCE_NAME: namearchive-host
+  _ZONE: us-west1-a
   _RELEASE_TAG: ${SHORT_SHA}
 
 steps:
