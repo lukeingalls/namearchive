@@ -2,6 +2,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Database } from "bun:sqlite";
+import { nameTrendPoints, YEAR_END, YEAR_START } from "./data/name-trend-points";
 
 export interface NameData {
   year: number;
@@ -16,17 +17,10 @@ export interface NamePageData {
   nextName: string | null;
 }
 
-interface TrendSeed {
-  name: string;
-  startCount: number;
-  peakYear: number;
-  peakCount: number;
-  endCount: number;
-}
-
 const serverRoot = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(serverRoot, "data");
 const dbPath = path.join(dataDir, "namearchive.sqlite");
+const DATASET_VERSION = "v4-sparse-points-interpolated";
 
 mkdirSync(dataDir, { recursive: true });
 
@@ -51,84 +45,56 @@ db.run(`
   );
 `);
 
-const seedData: TrendSeed[] = [
-  { name: "Emma", startCount: 1200, peakYear: 2018, peakCount: 19800, endCount: 15200 },
-  { name: "Olivia", startCount: 800, peakYear: 2020, peakCount: 18500, endCount: 16800 },
-  { name: "Liam", startCount: 500, peakYear: 2019, peakCount: 20500, endCount: 19200 },
-  { name: "Noah", startCount: 600, peakYear: 2016, peakCount: 19300, endCount: 17500 },
-  { name: "Sophia", startCount: 1500, peakYear: 2012, peakCount: 22500, endCount: 14200 },
-  { name: "Isabella", startCount: 900, peakYear: 2010, peakCount: 22900, endCount: 12800 },
-  { name: "Ava", startCount: 400, peakYear: 2014, peakCount: 15200, endCount: 13500 },
-  { name: "Mia", startCount: 300, peakYear: 2015, peakCount: 14800, endCount: 13200 },
-  { name: "Charlotte", startCount: 1800, peakYear: 2019, peakCount: 13200, endCount: 12900 },
-  { name: "Amelia", startCount: 600, peakYear: 2021, peakCount: 13000, endCount: 12800 },
-  { name: "James", startCount: 8500, peakYear: 1950, peakCount: 86000, endCount: 12800 },
-  { name: "William", startCount: 7200, peakYear: 1947, peakCount: 58000, endCount: 11200 },
-  { name: "Benjamin", startCount: 2100, peakYear: 2018, peakCount: 13500, endCount: 12900 },
-  { name: "Lucas", startCount: 400, peakYear: 2020, peakCount: 11900, endCount: 11600 },
-  { name: "Henry", startCount: 3200, peakYear: 1920, peakCount: 14200, endCount: 11100 },
-  { name: "Alexander", startCount: 1800, peakYear: 2009, peakCount: 16900, endCount: 11800 },
-  { name: "Mason", startCount: 200, peakYear: 2011, peakCount: 19200, endCount: 9800 },
-  { name: "Michael", startCount: 12000, peakYear: 1961, peakCount: 92400, endCount: 9300 },
-  { name: "Ethan", startCount: 150, peakYear: 2010, peakCount: 17800, endCount: 9500 },
-  { name: "Daniel", startCount: 3500, peakYear: 1985, peakCount: 40000, endCount: 9200 },
-  { name: "Emily", startCount: 8200, peakYear: 1999, peakCount: 25900, endCount: 8900 },
-  { name: "Abigail", startCount: 1200, peakYear: 2005, peakCount: 15900, endCount: 7600 },
-  { name: "Madison", startCount: 300, peakYear: 2001, peakCount: 22200, endCount: 6500 },
-  { name: "Elizabeth", startCount: 9500, peakYear: 1965, peakCount: 27500, endCount: 7800 },
-  { name: "Harper", startCount: 100, peakYear: 2015, peakCount: 10900, endCount: 10200 },
-  { name: "Evelyn", startCount: 4200, peakYear: 1920, peakCount: 15600, endCount: 9800 },
-  { name: "Ella", startCount: 800, peakYear: 2012, peakCount: 11900, endCount: 10200 },
-  { name: "Grace", startCount: 2800, peakYear: 2003, peakCount: 12900, endCount: 6900 },
-  { name: "Claude", startCount: 1800, peakYear: 1910, peakCount: 9200, endCount: 2800 },
-  { name: "ChatGPT", startCount: 0, peakYear: 2026, peakCount: 2600, endCount: 2500 },
-  { name: "Grok", startCount: 0, peakYear: 2026, peakCount: 1400, endCount: 1350 },
-];
+db.run(`
+  CREATE TABLE IF NOT EXISTS metadata (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+`);
 
-function hashString(value: string): number {
-  let hash = 2166136261;
-  for (let i = 0; i < value.length; i += 1) {
-    hash ^= value.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
+function interpolateTrendData(name: string, points: Record<number, number>): NameData[] {
+  if (points[YEAR_START] === undefined || points[YEAR_END] === undefined) {
+    throw new Error(
+      `Invalid points for "${name}": ${YEAR_START} and ${YEAR_END} are mandatory`,
+    );
   }
 
-  return hash >>> 0;
-}
+  const knownYears = Object.keys(points)
+    .map((year) => Number(year))
+    .filter((year) => Number.isInteger(year) && year >= YEAR_START && year <= YEAR_END)
+    .sort((a, b) => a - b);
 
-function mulberry32(seed: number): () => number {
-  let t = seed;
-  return () => {
-    t += 0x6d2b79f5;
-    let next = Math.imul(t ^ (t >>> 15), t | 1);
-    next ^= next + Math.imul(next ^ (next >>> 7), next | 61);
-    return ((next ^ (next >>> 14)) >>> 0) / 4294967296;
-  };
-}
+  if (knownYears.length < 2) {
+    throw new Error(`Invalid points for "${name}": at least two years required`);
+  }
 
-function generateTrendData(seed: TrendSeed): NameData[] {
   const data: NameData[] = [];
-  const random = mulberry32(hashString(seed.name));
+  for (let i = 0; i < knownYears.length - 1; i += 1) {
+    const startYear = knownYears[i];
+    const endYear = knownYears[i + 1];
+    const startCount = points[startYear];
+    const endCount = points[endYear];
 
-  for (let year = 1900; year <= 2026; year += 1) {
-    let count: number;
-
-    if (seed.peakYear >= 2026) {
-      const progress = (year - 1900) / (2026 - 1900);
-      count = seed.startCount + (seed.peakCount - seed.startCount) * progress;
-    } else if (seed.peakYear <= 1900) {
-      const progress = (year - 1900) / (2026 - 1900);
-      count = seed.peakCount - (seed.peakCount - seed.endCount) * progress;
-    } else if (year < seed.peakYear) {
-      const progress = (year - 1900) / (seed.peakYear - 1900);
-      count = seed.startCount + (seed.peakCount - seed.startCount) * progress;
-    } else {
-      const progress = (year - seed.peakYear) / (2026 - seed.peakYear);
-      count = seed.peakCount - (seed.peakCount - seed.endCount) * progress;
+    if (startCount === undefined || endCount === undefined) {
+      throw new Error(`Invalid points for "${name}" between ${startYear} and ${endYear}`);
     }
 
-    const variation = (random() - 0.5) * count * 0.1;
-    count = Math.max(0, Math.round(count + variation));
-    data.push({ year, count, percentage: 0 });
+    for (let year = startYear; year <= endYear; year += 1) {
+      if (i > 0 && year === startYear) {
+        continue;
+      }
+
+      const progress = (year - startYear) / Math.max(endYear - startYear, 1);
+      const count = Math.max(
+        0,
+        Math.round(startCount + (endCount - startCount) * progress),
+      );
+      data.push({ year, count, percentage: 0 });
+    }
+  }
+
+  if (data.length !== YEAR_END - YEAR_START + 1) {
+    throw new Error(`Invalid interpolated year coverage for "${name}"`);
   }
 
   const maxCount = Math.max(...data.map((item) => item.count), 1);
@@ -138,37 +104,52 @@ function generateTrendData(seed: TrendSeed): NameData[] {
   }));
 }
 
-function seedDatabaseIfNeeded() {
-  const existingRow = db.query("SELECT COUNT(*) as count FROM names;").get() as
-    | { count: number }
-    | undefined;
-
-  if (existingRow && existingRow.count > 0) {
-    return;
-  }
-
+function seedDatabase() {
   const seedTransaction = db.transaction(() => {
+    db.run("DELETE FROM name_trends;");
+    db.run("DELETE FROM names;");
+
     const insertName = db.query("INSERT INTO names (name) VALUES (?1);");
     const getNameId = db.query("SELECT id FROM names WHERE name = ?1;");
     const insertTrend = db.query(
       "INSERT INTO name_trends (name_id, year, count, percentage) VALUES (?1, ?2, ?3, ?4);",
     );
 
-    for (const seed of seedData) {
-      insertName.run(seed.name);
-      const row = getNameId.get(seed.name) as { id: number } | undefined;
+    const sortedNames = Object.keys(nameTrendPoints).sort((a, b) => a.localeCompare(b));
+    for (const name of sortedNames) {
+      insertName.run(name);
+      const row = getNameId.get(name) as { id: number } | undefined;
       if (!row) {
         continue;
       }
 
-      const trend = generateTrendData(seed);
+      const trend = interpolateTrendData(name, nameTrendPoints[name]);
       for (const point of trend) {
         insertTrend.run(row.id, point.year, point.count, point.percentage);
       }
     }
+
+    db.query(
+      `
+        INSERT INTO metadata (key, value) VALUES ('dataset_version', ?1)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value;
+      `,
+    ).run(DATASET_VERSION);
   });
 
   seedTransaction();
+}
+
+function seedDatabaseIfNeeded() {
+  const row = db
+    .query("SELECT value FROM metadata WHERE key = 'dataset_version' LIMIT 1;")
+    .get() as { value: string } | undefined;
+
+  if (row?.value === DATASET_VERSION) {
+    return;
+  }
+
+  seedDatabase();
 }
 
 seedDatabaseIfNeeded();

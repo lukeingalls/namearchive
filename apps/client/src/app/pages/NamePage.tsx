@@ -16,6 +16,8 @@ export function NamePage() {
   const [pageData, setPageData] = useState<NamePageResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  console.log({ pageData });
+
   useEffect(() => {
     if (!name) {
       setPageData(null);
@@ -84,8 +86,8 @@ export function NamePage() {
   const currentName = pageData.name;
   const previousName = pageData.previousName;
   const nextName = pageData.nextName;
-  const peakData = currentData.reduce((max, item) => 
-    item.count > max.count ? item : max
+  const peakData = currentData.reduce((max, item) =>
+    item.count > max.count ? item : max,
   );
   const currentYear = currentData[currentData.length - 1];
   const startYear = currentData[0];
@@ -95,10 +97,10 @@ export function NamePage() {
       {/* Navigation */}
       <div className="border-b-2 border-[#d4b896] bg-[#ebe4d1]">
         <div className="max-w-6xl mx-auto px-6 py-4">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="inline-flex items-center gap-2 text-[#8b6914] hover:text-[#6b5914] transition-colors"
-            style={{ fontFamily: 'Georgia, serif' }}
+            style={{ fontFamily: "Georgia, serif" }}
           >
             <ArrowLeft className="size-5" />
             Back to Archives
@@ -111,15 +113,22 @@ export function NamePage() {
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Baby className="size-10 text-[#8b6914]" />
-            <h1 className="text-6xl text-[#4a3f2f]" style={{ fontFamily: 'Georgia, serif' }}>
+            <h1
+              className="text-6xl text-[#4a3f2f]"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
               {currentName}
             </h1>
           </div>
-          <p className="text-xl text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
+          <p
+            className="text-xl text-[#6b5d4f]"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
             A historical popularity profile from 1900 to 2026
           </p>
           <div className="mt-4 text-sm text-[#8b7355]">
-            Peak year: {peakData.year} • Current level: {currentYear.percentage.toFixed(0)}% of peak
+            Peak year: {peakData.year} • Current level:{" "}
+            {currentYear.percentage.toFixed(0)}% of peak
           </div>
         </div>
 
@@ -128,11 +137,17 @@ export function NamePage() {
           <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 shadow-lg">
             <div className="flex items-center gap-3 mb-3">
               <Calendar className="size-6 text-[#8b6914]" />
-              <h3 className="text-lg text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
+              <h3
+                className="text-lg text-[#6b5d4f]"
+                style={{ fontFamily: "Georgia, serif" }}
+              >
                 Highest Usage Year
               </h3>
             </div>
-            <p className="text-5xl text-[#8b6914]" style={{ fontFamily: 'Georgia, serif' }}>
+            <p
+              className="text-5xl text-[#8b6914]"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
               {peakData.year}
             </p>
             <p className="text-sm text-[#8b7355] mt-2">
@@ -143,60 +158,80 @@ export function NamePage() {
           <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 shadow-lg">
             <div className="flex items-center gap-3 mb-3">
               <TrendingUp className="size-6 text-[#8b6914]" />
-              <h3 className="text-lg text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
+              <h3
+                className="text-lg text-[#6b5d4f]"
+                style={{ fontFamily: "Georgia, serif" }}
+              >
                 Current Level
               </h3>
             </div>
-            <p className="text-5xl text-[#8b6914]" style={{ fontFamily: 'Georgia, serif' }}>
+            <p
+              className="text-5xl text-[#8b6914]"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
               {currentYear.percentage.toFixed(0)}%
             </p>
-            <p className="text-sm text-[#8b7355] mt-2">
-              of peak popularity
-            </p>
+            <p className="text-sm text-[#8b7355] mt-2">of peak popularity</p>
           </div>
 
           <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 shadow-lg">
             <div className="flex items-center gap-3 mb-3">
               <Activity className="size-6 text-[#8b6914]" />
-              <h3 className="text-lg text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
+              <h3
+                className="text-lg text-[#6b5d4f]"
+                style={{ fontFamily: "Georgia, serif" }}
+              >
                 Net Change Since 1900
               </h3>
             </div>
-            <p className="text-5xl text-[#8b6914]" style={{ fontFamily: 'Georgia, serif' }}>
-              {((currentYear.percentage - startYear.percentage) > 0 ? '+' : '')}
+            <p
+              className="text-5xl text-[#8b6914]"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              {currentYear.percentage - startYear.percentage > 0 ? "+" : ""}
               {(currentYear.percentage - startYear.percentage).toFixed(0)}%
             </p>
-            <p className="text-sm text-[#8b7355] mt-2">
-              percentage points
-            </p>
+            <p className="text-sm text-[#8b7355] mt-2">percentage points</p>
           </div>
         </div>
 
         {/* Chart Section */}
         <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-8 shadow-lg">
-          <h2 
-            className="text-3xl text-[#4a3f2f] mb-6 text-center" 
-            style={{ fontFamily: 'Georgia, serif' }}
+          <h2
+            className="text-3xl text-[#4a3f2f] mb-6 text-center"
+            style={{ fontFamily: "Georgia, serif" }}
           >
             Popularity Trend
           </h2>
           <div className="bg-[#f5f1e8] border border-[#d4b896] rounded-lg p-6">
             <NameTrendChart data={currentData} name={currentName} />
           </div>
-          <p className="text-center text-[#8b7355] mt-6 text-sm" style={{ fontFamily: 'Georgia, serif' }}>
-            Relative popularity shown as percentage of peak year • Data spans 1900—2026
+          <p
+            className="text-center text-[#8b7355] mt-6 text-sm"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            Relative popularity shown as percentage of peak year • Data spans
+            1900—2026
           </p>
         </div>
 
         {/* Interpretation */}
         <div className="mt-12 bg-[#e0d4bb] border-2 border-[#c4a886] rounded-lg p-8 shadow-lg">
-          <h3 className="text-2xl text-[#4a3f2f] mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+          <h3
+            className="text-2xl text-[#4a3f2f] mb-4"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
             How to Read This
           </h3>
-          <p className="text-[#4a3f2f] leading-relaxed" style={{ fontFamily: 'Georgia, serif' }}>
-            This chart shows relative popularity for <span className="font-semibold">{currentName}</span> from 1900 to
-            2026. The peak year ({peakData.year}) is set to 100%, and every other year is shown against that high
-            point. That makes it easier to compare rise-and-fall patterns without population-size distortion.
+          <p
+            className="text-[#4a3f2f] leading-relaxed"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            This chart shows relative popularity for{" "}
+            <span className="font-semibold">{currentName}</span> from 1900 to
+            2026. The peak year ({peakData.year}) is set to 100%, and every
+            other year is shown against that high point. That makes it easier to
+            compare rise-and-fall patterns without population-size distortion.
           </p>
         </div>
 
@@ -206,7 +241,7 @@ export function NamePage() {
             <Link
               to={`/n/${previousName}`}
               className="inline-flex items-center gap-2 rounded-lg border-2 border-[#d4b896] bg-[#ebe4d1] px-5 py-3 text-[#8b6914] hover:bg-[#e0d4bb] hover:border-[#c4a886] transition-all"
-              style={{ fontFamily: 'Georgia, serif' }}
+              style={{ fontFamily: "Georgia, serif" }}
             >
               <ArrowLeft className="size-4" />
               Back: {previousName}
@@ -219,7 +254,7 @@ export function NamePage() {
             <Link
               to={`/n/${nextName}`}
               className="inline-flex items-center gap-2 rounded-lg border-2 border-[#d4b896] bg-[#ebe4d1] px-5 py-3 text-[#8b6914] hover:bg-[#e0d4bb] hover:border-[#c4a886] transition-all"
-              style={{ fontFamily: 'Georgia, serif' }}
+              style={{ fontFamily: "Georgia, serif" }}
             >
               Next: {nextName}
               <ArrowRight className="size-4" />
