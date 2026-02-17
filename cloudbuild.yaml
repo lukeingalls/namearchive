@@ -17,14 +17,18 @@ steps:
     args:
       - -lc
       - |
+        rm -rf /workspace/release-staging
+        mkdir -p /workspace/release-staging
+        cp -a . /workspace/release-staging/
+        rm -rf /workspace/release-staging/.git \
+          /workspace/release-staging/node_modules \
+          /workspace/release-staging/apps/client/node_modules \
+          /workspace/release-staging/apps/server/node_modules \
+          /workspace/release-staging/apps/server/.og-cache \
+          /workspace/release-staging/namearchive-release.tgz
         tar \
-          --exclude=.git \
-          --exclude=namearchive-release.tgz \
-          --exclude=node_modules \
-          --exclude=apps/client/node_modules \
-          --exclude=apps/server/node_modules \
-          --exclude=apps/server/.og-cache \
-          -czf /workspace/namearchive-release.tgz .
+          -czf /workspace/namearchive-release.tgz \
+          -C /workspace/release-staging .
 
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: bash
