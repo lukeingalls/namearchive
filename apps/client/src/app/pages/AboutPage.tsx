@@ -4,7 +4,7 @@ import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 export function AboutPage() {
   useDocumentMeta(
-    "About namearchive",
+    "About | namearchive.org",
     "Learn about name archive and its mission to make naming history easy to explore.",
   );
 

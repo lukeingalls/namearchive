@@ -23,12 +23,12 @@ export function NamePage() {
   const effectiveName = pageData?.name ?? routeName;
 
   const title = !name
-    ? "Name Not Found | name archive"
+    ? "Name Not Found | namearchive.org"
     : pageData
-      ? `${pageData.name} name trend | name archive`
+      ? `${pageData.name} name trend | namearchive.org`
       : isLoading
-        ? `${routeName} | name archive`
-        : "Name Not Found | name archive";
+        ? `${routeName} | namearchive.org`
+        : "Name Not Found | namearchive.org";
 
   const description = !name
     ? "We do not have records for this name yet. Explore other names in the archive."

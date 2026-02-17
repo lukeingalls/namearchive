@@ -48,8 +48,8 @@ export function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const trendingNames = ["Claude", "ChatGPT", "Grok"];
   useDocumentMeta(
-    "name archive",
-    "Explore historical U.S. baby naming trends from 1900 to 2026 on namearchive.org.",
+    "Explore Baby Name Trends | namearchive.org",
+    "See historical U.S. baby naming trends from 1900 to 2026 on namearchive.org.",
   );
 
   useEffect(() => {
