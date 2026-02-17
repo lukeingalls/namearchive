@@ -46,6 +46,12 @@ SSH into VM and run:
 sudo bash /opt/namearchive/scripts/bootstrap-vm.sh
 ```
 
+If OG images were generated before fonts were installed, clear cache once:
+
+```bash
+sudo rm -rf /opt/namearchive/shared/og-cache/*
+```
+
 Install service units:
 
 ```bash

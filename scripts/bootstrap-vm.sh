@@ -6,7 +6,15 @@ APP_DIR="${APP_DIR:-/opt/namearchive}"
 DOMAIN_NAME="${DOMAIN_NAME:-namearchive.org}"
 
 sudo apt-get update
-sudo apt-get install -y git curl sqlite3 gzip
+sudo apt-get install -y \
+  git \
+  curl \
+  sqlite3 \
+  gzip \
+  fontconfig \
+  fonts-dejavu-core \
+  fonts-liberation2 \
+  fonts-noto-core
 
 if ! id "${APP_USER}" >/dev/null 2>&1; then
   sudo useradd --system --home "${APP_DIR}" --shell /usr/sbin/nologin "${APP_USER}"
