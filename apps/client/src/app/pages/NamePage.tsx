@@ -8,8 +8,10 @@ import {
   Calendar,
   TrendingUp,
   Activity,
+  Share2,
 } from "lucide-react";
 import { fetchNamePageData, type NamePageResponse } from "../data/nameApi";
+import { toast } from "sonner";
 
 export function NamePage() {
   const { name } = useParams<{ name: string }>();
@@ -98,11 +100,43 @@ export function NamePage() {
   const currentYear = currentData[currentData.length - 1];
   const startYear = currentData[0];
 
+  async function copyCurrentLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard");
+    } catch {
+      toast.error("Could not copy link");
+    }
+  }
+
+  async function handleShare() {
+    const shareTitle = `${currentName} name trend`;
+    const shareText = `Explore historical popularity trends for ${currentName} on namearchive.org`;
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+      }
+    }
+
+    await copyCurrentLink();
+  }
+
   return (
     <div>
       {/* Navigation */}
       <div className="border-b-2 border-[#d4b896] bg-[#ebe4d1]">
-        <div className="max-w-6xl mx-auto px-6 py-4">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-3">
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-[#8b6914] hover:text-[#6b5914] transition-colors"
@@ -111,6 +145,15 @@ export function NamePage() {
             <ArrowLeft className="size-5" />
             Back to Archives
           </Link>
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex items-center gap-2 rounded-md border border-[#c4a886] bg-[#f5f1e8] px-3 py-2 text-[#8b6914] hover:bg-[#e0d4bb] transition-colors"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            <Share2 className="size-4" />
+            Share
+          </button>
         </div>
       </div>
 
@@ -130,7 +173,8 @@ export function NamePage() {
             className="text-base sm:text-xl text-[#6b5d4f]"
             style={{ fontFamily: "Georgia, serif" }}
           >
-            A historical popularity profile from 1900 to 2026
+            A historical popularity profile of babies named{" "}
+            <strong>{currentName}</strong> from 1900 to 2026
           </p>
           <div className="mt-4 text-sm text-[#8b7355]">
             Peak year: {peakData.year} • Current level:{" "}
