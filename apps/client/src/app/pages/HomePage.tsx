@@ -69,21 +69,21 @@ export function HomePage() {
   }, []);
 
   return (
-    <div className="p-6 md:p-12">
+    <div className="p-4 sm:p-6 md:p-12">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Baby className="size-12 text-[#8b6914]" />
+        <div className="text-center mb-12 sm:mb-16">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-4">
+            <Baby className="size-8 sm:size-12 text-[#8b6914]" />
             <h1
-              className="text-6xl text-[#4a3f2f]"
+              className="text-3xl sm:text-5xl md:text-6xl leading-tight break-all sm:break-normal text-[#4a3f2f]"
               style={{ fontFamily: "Georgia, serif" }}
             >
               namearchive.org
             </h1>
           </div>
           <p
-            className="text-xl text-[#6b5d4f]"
+            className="text-base sm:text-xl text-[#6b5d4f]"
             style={{ fontFamily: "Georgia, serif" }}
           >
             A Historical Record of American Naming Trends
@@ -92,9 +92,9 @@ export function HomePage() {
         </div>
 
         {/* Description */}
-        <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-8 mb-12 shadow-lg">
+        <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 sm:p-8 mb-12 shadow-lg">
           <p
-            className="text-[#4a3f2f] leading-relaxed text-center"
+            className="text-sm sm:text-base text-[#4a3f2f] leading-relaxed text-center"
             style={{ fontFamily: "Georgia, serif" }}
           >
             Explore over a century of naming traditions. Each name tells a story
@@ -105,11 +105,11 @@ export function HomePage() {
         </div>
 
         {/* Trending */}
-        <div className="bg-[#e8ddc4] border-2 border-[#c4a886] rounded-lg p-8 mb-12 shadow-lg">
+        <div className="bg-[#e8ddc4] border-2 border-[#c4a886] rounded-lg p-6 sm:p-8 mb-12 shadow-lg">
           <div className="flex items-center gap-2 mb-6">
             <TrendingUp className="size-6 text-[#8b6914]" />
             <h2
-              className="text-3xl text-[#4a3f2f]"
+              className="text-2xl sm:text-3xl text-[#4a3f2f]"
               style={{ fontFamily: "Georgia, serif" }}
             >
               Trending
@@ -123,7 +123,7 @@ export function HomePage() {
                 className="bg-[#f5f1e8] border-2 border-[#d4b896] rounded-lg p-5 hover:bg-[#efe6d4] hover:border-[#c4a886] transition-all"
               >
                 <div
-                  className="text-xl text-[#4a3f2f]"
+                  className="text-lg sm:text-xl text-[#4a3f2f]"
                   style={{ fontFamily: "Georgia, serif" }}
                 >
                   {name}
@@ -154,13 +154,13 @@ export function HomePage() {
             <Link
               key={name}
               to={`/n/${name}`}
-              className="group bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 hover:bg-[#e0d4bb] transition-all hover:shadow-xl hover:border-[#c4a886] relative overflow-hidden"
+              className="group bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-4 sm:p-6 hover:bg-[#e0d4bb] transition-all hover:shadow-xl hover:border-[#c4a886] relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-[#8b6914] opacity-0 group-hover:opacity-5 transition-opacity" />
               <div className="relative z-10">
                 <div className="text-center">
                   <h3
-                    className="text-2xl text-[#4a3f2f] mb-2"
+                    className="text-xl sm:text-2xl text-[#4a3f2f] mb-2"
                     style={{ fontFamily: "Georgia, serif" }}
                   >
                     {name}

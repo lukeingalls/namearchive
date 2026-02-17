@@ -4,19 +4,19 @@ import { Baby, BookOpen, Database, LineChart } from "lucide-react";
 export function AboutPage() {
   return (
     <div>
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Baby className="size-10 text-[#8b6914]" />
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-4">
+            <Baby className="size-8 sm:size-10 text-[#8b6914]" />
             <h1
-              className="text-5xl text-[#4a3f2f]"
+              className="text-3xl sm:text-5xl leading-tight break-words text-[#4a3f2f]"
               style={{ fontFamily: "Georgia, serif" }}
             >
               About namearchive.org
             </h1>
           </div>
           <p
-            className="text-lg text-[#6b5d4f]"
+            className="text-base sm:text-lg text-[#6b5d4f]"
             style={{ fontFamily: "Georgia, serif" }}
           >
             A public record of how names rise, fall, and return across
@@ -24,9 +24,9 @@ export function AboutPage() {
           </p>
         </div>
 
-        <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-8 shadow-lg mb-8">
+        <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 sm:p-8 shadow-lg mb-8">
           <h2
-            className="text-2xl text-[#4a3f2f] mb-4"
+            className="text-xl sm:text-2xl text-[#4a3f2f] mb-4"
             style={{ fontFamily: "Georgia, serif" }}
           >
             Mission
@@ -53,7 +53,7 @@ export function AboutPage() {
           <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 shadow-lg">
             <BookOpen className="size-6 text-[#8b6914] mb-3" />
             <h3
-              className="text-xl text-[#4a3f2f] mb-2"
+              className="text-lg sm:text-xl text-[#4a3f2f] mb-2"
               style={{ fontFamily: "Georgia, serif" }}
             >
               Historical Lens
@@ -69,7 +69,7 @@ export function AboutPage() {
           <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 shadow-lg">
             <LineChart className="size-6 text-[#8b6914] mb-3" />
             <h3
-              className="text-xl text-[#4a3f2f] mb-2"
+              className="text-lg sm:text-xl text-[#4a3f2f] mb-2"
               style={{ fontFamily: "Georgia, serif" }}
             >
               Relative Trends
@@ -85,7 +85,7 @@ export function AboutPage() {
           <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 shadow-lg">
             <Database className="size-6 text-[#8b6914] mb-3" />
             <h3
-              className="text-xl text-[#4a3f2f] mb-2"
+              className="text-lg sm:text-xl text-[#4a3f2f] mb-2"
               style={{ fontFamily: "Georgia, serif" }}
             >
               Data Access
@@ -100,9 +100,9 @@ export function AboutPage() {
           </div>
         </div>
 
-        <div className="bg-[#e0d4bb] border-2 border-[#c4a886] rounded-lg p-8 shadow-lg">
+        <div className="bg-[#e0d4bb] border-2 border-[#c4a886] rounded-lg p-6 sm:p-8 shadow-lg">
           <h2
-            className="text-2xl text-[#4a3f2f] mb-4"
+            className="text-xl sm:text-2xl text-[#4a3f2f] mb-4"
             style={{ fontFamily: "Georgia, serif" }}
           >
             Explore the Archive

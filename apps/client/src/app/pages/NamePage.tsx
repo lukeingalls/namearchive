@@ -16,8 +16,6 @@ export function NamePage() {
   const [pageData, setPageData] = useState<NamePageResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log({ pageData });
-
   useEffect(() => {
     if (!name) {
       setPageData(null);
@@ -63,19 +61,27 @@ export function NamePage() {
   if (!pageData) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="text-center">
+        <div className="text-center max-w-2xl bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-6 sm:p-10 shadow-lg">
           <h1
-            className="text-4xl text-[#4a3f2f] mb-4"
+            className="text-2xl sm:text-4xl text-[#4a3f2f] mb-4"
             style={{ fontFamily: "Georgia, serif" }}
           >
-            Name Not Found
+            We don't have records for this name (yet...)
           </h1>
+          <p
+            className="text-[#6b5d4f] mb-6 leading-relaxed"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            Some names appear in the archive only after we ingest new historical
+            data. Try a nearby spelling, or browse the current collection while
+            this one is waiting in line.
+          </p>
           <Link
             to="/"
-            className="text-[#8b6914] hover:underline"
+            className="inline-flex items-center rounded-md bg-[#8b6914] px-5 py-3 text-[#f5f1e8] hover:bg-[#755812] transition-colors"
             style={{ fontFamily: "Georgia, serif" }}
           >
-            Return to Archives
+            Browse the Archive
           </Link>
         </div>
       </div>
@@ -108,20 +114,20 @@ export function NamePage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
         {/* Name Header */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Baby className="size-10 text-[#8b6914]" />
+            <Baby className="size-8 sm:size-10 text-[#8b6914]" />
             <h1
-              className="text-6xl text-[#4a3f2f]"
+              className="text-4xl sm:text-6xl break-words text-[#4a3f2f]"
               style={{ fontFamily: "Georgia, serif" }}
             >
               {currentName}
             </h1>
           </div>
           <p
-            className="text-xl text-[#6b5d4f]"
+            className="text-base sm:text-xl text-[#6b5d4f]"
             style={{ fontFamily: "Georgia, serif" }}
           >
             A historical popularity profile from 1900 to 2026
@@ -145,7 +151,7 @@ export function NamePage() {
               </h3>
             </div>
             <p
-              className="text-5xl text-[#8b6914]"
+              className="text-4xl sm:text-5xl text-[#8b6914]"
               style={{ fontFamily: "Georgia, serif" }}
             >
               {peakData.year}
@@ -166,7 +172,7 @@ export function NamePage() {
               </h3>
             </div>
             <p
-              className="text-5xl text-[#8b6914]"
+              className="text-4xl sm:text-5xl text-[#8b6914]"
               style={{ fontFamily: "Georgia, serif" }}
             >
               {currentYear.percentage.toFixed(0)}%
@@ -185,7 +191,7 @@ export function NamePage() {
               </h3>
             </div>
             <p
-              className="text-5xl text-[#8b6914]"
+              className="text-4xl sm:text-5xl text-[#8b6914]"
               style={{ fontFamily: "Georgia, serif" }}
             >
               {currentYear.percentage - startYear.percentage > 0 ? "+" : ""}
@@ -198,7 +204,7 @@ export function NamePage() {
         {/* Chart Section */}
         <div className="bg-[#ebe4d1] border-2 border-[#d4b896] rounded-lg p-8 shadow-lg">
           <h2
-            className="text-3xl text-[#4a3f2f] mb-6 text-center"
+            className="text-2xl sm:text-3xl text-[#4a3f2f] mb-6 text-center"
             style={{ fontFamily: "Georgia, serif" }}
           >
             Popularity Trend
@@ -218,7 +224,7 @@ export function NamePage() {
         {/* Interpretation */}
         <div className="mt-12 bg-[#e0d4bb] border-2 border-[#c4a886] rounded-lg p-8 shadow-lg">
           <h3
-            className="text-2xl text-[#4a3f2f] mb-4"
+            className="text-xl sm:text-2xl text-[#4a3f2f] mb-4"
             style={{ fontFamily: "Georgia, serif" }}
           >
             How to Read This
@@ -236,11 +242,11 @@ export function NamePage() {
         </div>
 
         {/* Adjacent Names Navigation */}
-        <div className="mt-10 flex items-center justify-between gap-4">
+        <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           {previousName ? (
             <Link
               to={`/n/${previousName}`}
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#d4b896] bg-[#ebe4d1] px-5 py-3 text-[#8b6914] hover:bg-[#e0d4bb] hover:border-[#c4a886] transition-all"
+              className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-lg border-2 border-[#d4b896] bg-[#ebe4d1] px-5 py-3 text-[#8b6914] hover:bg-[#e0d4bb] hover:border-[#c4a886] transition-all"
               style={{ fontFamily: "Georgia, serif" }}
             >
               <ArrowLeft className="size-4" />
@@ -253,7 +259,7 @@ export function NamePage() {
           {nextName ? (
             <Link
               to={`/n/${nextName}`}
-              className="inline-flex items-center gap-2 rounded-lg border-2 border-[#d4b896] bg-[#ebe4d1] px-5 py-3 text-[#8b6914] hover:bg-[#e0d4bb] hover:border-[#c4a886] transition-all"
+              className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-lg border-2 border-[#d4b896] bg-[#ebe4d1] px-5 py-3 text-[#8b6914] hover:bg-[#e0d4bb] hover:border-[#c4a886] transition-all"
               style={{ fontFamily: "Georgia, serif" }}
             >
               Next: {nextName}

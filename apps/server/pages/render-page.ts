@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { ViteDevServer } from "vite";
-import { getPageMeta, renderHeadTags } from "./meta";
+import { getPageMeta, isUnknownNamePath, renderHeadTags } from "./meta";
 
 function escapeHtml(value: string): string {
   return value
@@ -54,7 +54,7 @@ export async function renderPage(args: RenderPageArgs) {
     )
     .replace("<!--head-tags-->", headTags);
 
-  res.statusCode = 200;
+  res.statusCode = isUnknownNamePath(pathname) ? 404 : 200;
   res.setHeader("Content-Type", "text/html");
   res.end(html);
 }

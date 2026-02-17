@@ -20,7 +20,7 @@ export interface NamePageData {
 const serverRoot = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(serverRoot, "data");
 const dbPath = path.join(dataDir, "namearchive.sqlite");
-const DATASET_VERSION = "v4-sparse-points-interpolated";
+const DATASET_VERSION = "v5-rich-sparse-points";
 
 mkdirSync(dataDir, { recursive: true });
 

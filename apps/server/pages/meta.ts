@@ -6,13 +6,31 @@ export interface PageMeta {
   ogImage: string | null;
 }
 
-export function getNameFromPath(pathname: string): string | null {
+function getRawNameFromPath(pathname: string): string | null {
   const match = pathname.match(/^\/n\/([^/]+)\/?$/);
   if (!match) {
     return null;
   }
 
-  return resolveName(decodeURIComponent(match[1]));
+  return decodeURIComponent(match[1]);
+}
+
+export function getNameFromPath(pathname: string): string | null {
+  const rawName = getRawNameFromPath(pathname);
+  if (!rawName) {
+    return null;
+  }
+
+  return resolveName(rawName);
+}
+
+export function isUnknownNamePath(pathname: string): boolean {
+  const rawName = getRawNameFromPath(pathname);
+  if (!rawName) {
+    return false;
+  }
+
+  return resolveName(rawName) === null;
 }
 
 export function getPageMeta(pathname: string, origin: string): PageMeta {
@@ -23,6 +41,15 @@ export function getPageMeta(pathname: string, origin: string): PageMeta {
       title: `${canonicalName} name trend | name archive`,
       description: `Explore historical popularity trends for ${canonicalName} from 1900 to 2026 on namearchive.org.`,
       ogImage: `${origin}/og/name/${encodeURIComponent(canonicalName)}.png?v=${CURRENT_OG_IMAGE_VERSION}`,
+    };
+  }
+
+  if (isUnknownNamePath(pathname)) {
+    return {
+      title: "Name Not Found | name archive",
+      description:
+        "We do not have records for this name yet. Explore other names in the archive.",
+      ogImage: null,
     };
   }
 

@@ -5,7 +5,7 @@ export function SiteFooter() {
     <footer className="mt-16 border-t-2 border-[#d4b896] bg-[#ebe4d1]">
       <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p
-          className="text-sm text-[#6b5d4f]"
+          className="text-sm text-[#6b5d4f] text-center md:text-left break-words"
           style={{ fontFamily: "Georgia, serif" }}
         >
           Historical U.S. naming trends • namearchive.org
