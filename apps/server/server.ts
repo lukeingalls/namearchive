@@ -118,14 +118,24 @@ async function start() {
   console.info(
     `Starting SSR server in ${isProd ? "production" : "development"} mode...`,
   );
-  const vite = isProd
-    ? null
-    : await createViteServer({
-        root: clientRoot,
-        appType: "custom",
-        server: { middlewareMode: true },
-      });
-  console.info("Vite server initialized");
+  const viteConfigPath = path.join(clientRoot, "vite.config.ts");
+  // console.info(`Finding vite config at ${viteConfigPath}`);
+  const vite = null;
+  // const vite = isProd
+  //   ? null
+  //   : await createViteServer({
+  //       root: clientRoot,
+  //       // Bun can hang resolving the full Vite config in middleware mode.
+  //       // Keep dev SSR boot reliable with an inline minimal config here.
+  //       configFile: viteConfigPath,
+  //       appType: "custom",
+  //       // server: { middlewareMode: true, hmr: false },
+  //       server: {
+  //         middlewareMode: true,
+  //         hmr: { protocol: "ws", host: "localhost", port: 5173 },
+  //       },
+  //     });
+  // console.info("Vite server initialized");
 
   const server = createHttpServer(async (req, res) => {
     console.info(`Received request: ${req.method} ${req.url}`);

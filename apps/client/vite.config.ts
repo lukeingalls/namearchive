@@ -1,7 +1,12 @@
-import { defineConfig } from 'vite'
-import path from 'path'
-import tailwindcss from '@tailwindcss/vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import path from "path";
+import { fileURLToPath } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
+console.info(`dirname in vite.config.ts: ${dirname}`);
 
 export default defineConfig({
   plugins: [
@@ -13,10 +18,10 @@ export default defineConfig({
   resolve: {
     alias: {
       // Alias @ to the src directory
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(dirname, "./src"),
     },
   },
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
-  assetsInclude: ['**/*.svg', '**/*.csv'],
-})
+  assetsInclude: ["**/*.svg", "**/*.csv"],
+});
