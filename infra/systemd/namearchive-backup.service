@@ -1,0 +1,14 @@
+[Unit]
+Description=Namearchive SQLite Backup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=namearchive
+Group=namearchive
+EnvironmentFile=/etc/namearchive-backup.env
+ExecStart=/opt/namearchive/current/scripts/backup-sqlite.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

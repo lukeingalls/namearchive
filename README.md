@@ -11,3 +11,10 @@ This repository uses a Bun workspace with separate client and server apps:
 - Run client-only dev server: `bun run dev:client`
 - Build client and SSR server bundle: `bun run build`
 - Run production SSR server: `bun run start`
+
+## Deployment (Google Cloud)
+
+- Primary deployment guide: `infra/gcp/README.md`
+- `systemd` units: `infra/systemd/`
+- Backup + deploy scripts: `scripts/`
+- Monitoring and recovery runbook: `infra/monitoring/alerts.md`

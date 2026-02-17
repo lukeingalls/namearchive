@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Namearchive SQLite backup hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=300
+Unit=namearchive-backup.service
+
+[Install]
+WantedBy=timers.target

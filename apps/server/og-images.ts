@@ -22,7 +22,9 @@ function escapeXml(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
-function buildSparklinePoints(data: Array<{ year: number; percentage: number }>): string {
+function buildSparklinePoints(
+  data: Array<{ year: number; percentage: number }>,
+): string {
   if (!data.length) {
     return "";
   }
@@ -119,7 +121,7 @@ function buildOgSvg(name: string): string {
   <rect x="40" y="40" width="1120" height="550" rx="22" fill="#ebe4d1" fill-opacity="0.88" stroke="#d4b896" stroke-width="4" />
   <text x="90" y="120" dominant-baseline="middle" fill="#4a3f2f" font-size="86" font-family="Georgia, serif">${nameLabel}</text>
   <text x="1110" y="120" text-anchor="end" dominant-baseline="middle" fill="${trend.color}" font-size="54" font-weight="700" font-family="Georgia, serif">${trend.label}</text>
-  <text x="90" y="182" fill="#6b5d4f" font-size="21" font-family="Georgia, serif">Popularity Trend Since 1900</text>
+  <text x="90" y="195" fill="#6b5d4f" font-size="30" font-family="Georgia, serif">Baby Name Trend Since 1900</text>
   <text x="600" y="335" text-anchor="middle" fill="#8b7355" fill-opacity="0.17" font-size="120" font-family="Georgia, serif">namearchive.org</text>
   <line x1="100" y1="510" x2="1100" y2="510" stroke="#c4a886" stroke-width="4" />
   <line x1="100" y1="250" x2="100" y2="510" stroke="#c4a886" stroke-width="4" />

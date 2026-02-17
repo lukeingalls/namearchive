@@ -1,5 +1,7 @@
 const GEMINI_API_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
+const GEMINI_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS ?? 12000);
+const GEMINI_MAX_RETRIES = Number(process.env.GEMINI_MAX_RETRIES ?? 1);
 
 interface GeminiValidationResult {
   isValidName: boolean;
@@ -24,30 +26,63 @@ async function callGemini(prompt: string): Promise<unknown> {
     throw new Error("GEMINI_API_KEY is not configured");
   }
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: "application/json",
-      },
-    }),
-  });
+  const retries = Number.isFinite(GEMINI_MAX_RETRIES) && GEMINI_MAX_RETRIES > 0
+    ? Math.floor(GEMINI_MAX_RETRIES)
+    : 0;
 
-  if (!response.ok) {
-    throw new Error(`Gemini API failed with status ${response.status}`);
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json",
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const retriable = response.status === 429 || response.status >= 500;
+        if (!retriable || attempt >= retries) {
+          throw new Error(`Gemini API failed with status ${response.status}`);
+        }
+        continue;
+      }
+
+      const payload = (await response.json()) as {
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      };
+      const text = payload.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+      const jsonText = extractJson(text);
+      return JSON.parse(jsonText);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" || error.message.includes("aborted"))
+      ) {
+        lastError = new Error("Gemini API request timed out");
+      } else {
+        lastError = error instanceof Error ? error : new Error("Gemini API request failed");
+      }
+      if (attempt >= retries) {
+        throw lastError;
+      }
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
-  const payload = (await response.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-  };
-  const text = payload.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  const jsonText = extractJson(text);
-  return JSON.parse(jsonText);
+  throw lastError ?? new Error("Gemini API request failed");
 }
 
 export async function validatePotentialName(

@@ -1,0 +1,42 @@
+substitutions:
+  _INSTANCE_NAME: namearchive-prod
+  _ZONE: us-central1-a
+  _RELEASE_TAG: ${SHORT_SHA}
+
+steps:
+  - name: oven/bun:1.2.19
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        bun install --frozen-lockfile
+        bun run build
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        tar \
+          --exclude=.git \
+          --exclude=node_modules \
+          --exclude=apps/client/node_modules \
+          --exclude=apps/server/node_modules \
+          --exclude=apps/server/.og-cache \
+          -czf /workspace/namearchive-release.tgz .
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        chmod +x scripts/deploy-vm.sh
+        PROJECT_ID="${PROJECT_ID}" \
+        ZONE="${_ZONE}" \
+        INSTANCE_NAME="${_INSTANCE_NAME}" \
+        RELEASE_TAG="${_RELEASE_TAG}" \
+        ARCHIVE_PATH="/workspace/namearchive-release.tgz" \
+        ./scripts/deploy-vm.sh
+
+options:
+  logging: CLOUD_LOGGING_ONLY
