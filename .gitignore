@@ -2,3 +2,6 @@ node_modules/
 
 dist/
 apps/server/.og-cache/
+apps/server/data/*.sqlite
+apps/server/data/*.sqlite-shm
+apps/server/data/*.sqlite-wal

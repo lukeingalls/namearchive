@@ -1,26 +1,31 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { availableNames, babyNamesDatabase } from "../data/babyNamesData";
 import { TrendingUp, Baby } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { fetchHomeData, type NameData } from "../data/nameApi";
 
 function NameSparkline({
-  name,
+  data,
   compact = false,
 }: {
-  name: string;
+  data: NameData[] | undefined;
   compact?: boolean;
 }) {
-  const data = babyNamesDatabase[name]
+  const sparklineData = (data ?? [])
     .filter((_, index) => index % 4 === 0)
     .map((item) => ({
       year: item.year,
       percentage: item.percentage,
     }));
 
+  if (!sparklineData.length) {
+    return <div className={`w-full mt-3 ${compact ? "h-7" : "h-14"}`} />;
+  }
+
   return (
     <div className={`w-full mt-3 ${compact ? "h-7" : "h-14"}`}>
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
+        <LineChart data={sparklineData}>
           <Line
             type="monotone"
             dataKey="percentage"
@@ -36,8 +41,32 @@ function NameSparkline({
 }
 
 export function HomePage() {
-  const popularNames = availableNames;
+  const [names, setNames] = useState<string[]>([]);
+  const [trends, setTrends] = useState<Record<string, NameData[]>>({});
+  const [isLoading, setIsLoading] = useState(true);
   const trendingNames = ["Claude", "ChatGPT", "Grok"];
+
+  useEffect(() => {
+    let isMounted = true;
+
+    fetchHomeData()
+      .then((payload) => {
+        if (!isMounted) {
+          return;
+        }
+        setNames(payload.names);
+        setTrends(payload.trends);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="p-6 md:p-12">
@@ -105,7 +134,7 @@ export function HomePage() {
                 >
                   Noteworthy momentum in recent years
                 </p>
-                <NameSparkline name={name} />
+                <NameSparkline data={trends[name]} />
               </Link>
             ))}
           </div>
@@ -113,7 +142,15 @@ export function HomePage() {
 
         {/* Names Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {popularNames.map((name) => (
+          {isLoading && (
+            <div
+              className="col-span-full text-center text-[#8b7355]"
+              style={{ fontFamily: "Georgia, serif" }}
+            >
+              Loading names...
+            </div>
+          )}
+          {names.map((name) => (
             <Link
               key={name}
               to={`/n/${name}`}
@@ -128,7 +165,7 @@ export function HomePage() {
                   >
                     {name}
                   </h3>
-                  <NameSparkline name={name} compact />
+                  <NameSparkline data={trends[name]} compact />
                 </div>
               </div>
             </Link>

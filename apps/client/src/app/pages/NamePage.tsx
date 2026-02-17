@@ -1,22 +1,77 @@
-import { useParams, Link } from 'react-router';
-import { babyNamesDatabase, availableNames } from '../data/babyNamesData';
-import { NameTrendChart } from '../components/NameTrendChart';
-import { ArrowLeft, ArrowRight, Baby, Calendar, TrendingUp, Activity } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router";
+import { NameTrendChart } from "../components/NameTrendChart";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Baby,
+  Calendar,
+  TrendingUp,
+  Activity,
+} from "lucide-react";
+import { fetchNamePageData, type NamePageResponse } from "../data/nameApi";
 
 export function NamePage() {
   const { name } = useParams<{ name: string }>();
-  
-  if (!name || !babyNamesDatabase[name]) {
+  const [pageData, setPageData] = useState<NamePageResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!name) {
+      setPageData(null);
+      setIsLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    setIsLoading(true);
+
+    fetchNamePageData(name)
+      .then((payload) => {
+        if (isMounted) {
+          setPageData(payload);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setPageData(null);
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [name]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <p className="text-[#6b5d4f]" style={{ fontFamily: "Georgia, serif" }}>
+          Loading name profile...
+        </p>
+      </div>
+    );
+  }
+
+  if (!pageData) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <h1 className="text-4xl text-[#4a3f2f] mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+          <h1
+            className="text-4xl text-[#4a3f2f] mb-4"
+            style={{ fontFamily: "Georgia, serif" }}
+          >
             Name Not Found
           </h1>
           <Link
             to="/"
             className="text-[#8b6914] hover:underline"
-            style={{ fontFamily: 'Georgia, serif' }}
+            style={{ fontFamily: "Georgia, serif" }}
           >
             Return to Archives
           </Link>
@@ -25,13 +80,10 @@ export function NamePage() {
     );
   }
 
-  const currentData = babyNamesDatabase[name];
-  const currentNameIndex = availableNames.indexOf(name);
-  const previousName = currentNameIndex > 0 ? availableNames[currentNameIndex - 1] : null;
-  const nextName =
-    currentNameIndex >= 0 && currentNameIndex < availableNames.length - 1
-      ? availableNames[currentNameIndex + 1]
-      : null;
+  const currentData = pageData.data;
+  const currentName = pageData.name;
+  const previousName = pageData.previousName;
+  const nextName = pageData.nextName;
   const peakData = currentData.reduce((max, item) => 
     item.count > max.count ? item : max
   );
@@ -60,7 +112,7 @@ export function NamePage() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Baby className="size-10 text-[#8b6914]" />
             <h1 className="text-6xl text-[#4a3f2f]" style={{ fontFamily: 'Georgia, serif' }}>
-              {name}
+              {currentName}
             </h1>
           </div>
           <p className="text-xl text-[#6b5d4f]" style={{ fontFamily: 'Georgia, serif' }}>
@@ -129,7 +181,7 @@ export function NamePage() {
             Popularity Trend
           </h2>
           <div className="bg-[#f5f1e8] border border-[#d4b896] rounded-lg p-6">
-            <NameTrendChart data={currentData} name={name} />
+            <NameTrendChart data={currentData} name={currentName} />
           </div>
           <p className="text-center text-[#8b7355] mt-6 text-sm" style={{ fontFamily: 'Georgia, serif' }}>
             Relative popularity shown as percentage of peak year • Data spans 1900—2026
@@ -142,7 +194,7 @@ export function NamePage() {
             How to Read This
           </h3>
           <p className="text-[#4a3f2f] leading-relaxed" style={{ fontFamily: 'Georgia, serif' }}>
-            This chart shows relative popularity for <span className="font-semibold">{name}</span> from 1900 to
+            This chart shows relative popularity for <span className="font-semibold">{currentName}</span> from 1900 to
             2026. The peak year ({peakData.year}) is set to 100%, and every other year is shown against that high
             point. That makes it easier to compare rise-and-fall patterns without population-size distortion.
           </p>

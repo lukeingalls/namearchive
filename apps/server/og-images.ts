@@ -1,23 +1,16 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
-import {
-  babyNamesDatabase,
-  availableNames,
-} from "../client/src/app/data/babyNamesData";
+import { getAllNames, getCanonicalName, getNameTrend } from "./db";
 
-export const CURRENT_OG_IMAGE_VERSION = "v1";
+export const CURRENT_OG_IMAGE_VERSION = "v2";
 
 const nameLookup = new Map(
-  availableNames.map((name) => [name.toLowerCase(), name]),
+  getAllNames().map((name) => [name.toLowerCase(), name]),
 );
 
 export function resolveName(input: string): string | null {
-  if (babyNamesDatabase[input]) {
-    return input;
-  }
-
-  return nameLookup.get(input.toLowerCase()) ?? null;
+  return getCanonicalName(input) ?? nameLookup.get(input.toLowerCase()) ?? null;
 }
 
 function escapeXml(value: string): string {
@@ -30,7 +23,11 @@ function escapeXml(value: string): string {
 }
 
 function buildSparklinePoints(name: string): string {
-  const data = babyNamesDatabase[name];
+  const data = getNameTrend(name);
+  if (!data.length) {
+    return "";
+  }
+
   const sampled = data.filter((_, index) => index % 3 === 0);
   const chartX = 100;
   const chartY = 250;
@@ -39,7 +36,8 @@ function buildSparklinePoints(name: string): string {
 
   return sampled
     .map((point, index) => {
-      const x = chartX + (index / (sampled.length - 1)) * chartWidth;
+      const denominator = Math.max(sampled.length - 1, 1);
+      const x = chartX + (index / denominator) * chartWidth;
       const y = chartY + chartHeight - (point.percentage / 100) * chartHeight;
       return `${x.toFixed(2)},${y.toFixed(2)}`;
     })
@@ -89,7 +87,6 @@ export async function ensureOgImage(
   if (!canonicalName) {
     return null;
   }
-  console.info("Ensuring OG image for name:", canonicalName);
 
   const ogDir = path.join(serverRoot, ".og-cache", CURRENT_OG_IMAGE_VERSION);
   await fs.mkdir(ogDir, { recursive: true });
@@ -98,10 +95,8 @@ export async function ensureOgImage(
 
   try {
     await fs.access(filePath);
-    console.info("OG image already exists, skipping generation:", filePath);
     return filePath;
   } catch {
-    console.info("OG image not found, generating:", filePath);
     const svg = buildOgSvg(canonicalName);
     await sharp(Buffer.from(svg))
       .png({ quality: 90, compressionLevel: 9 })
@@ -136,4 +131,25 @@ export async function serveOgImageRequest(
   res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
   res.end(body);
   return true;
+}
+
+export async function serveOgImageByName(
+  serverRoot: string,
+  requestedName: string,
+  res: import("node:http").ServerResponse,
+) {
+  const filePath = await ensureOgImage(serverRoot, requestedName);
+
+  if (!filePath) {
+    res.statusCode = 404;
+    res.setHeader("Content-Type", "text/plain");
+    res.end("Name not found");
+    return;
+  }
+
+  const body = await fs.readFile(filePath);
+  res.statusCode = 200;
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+  res.end(body);
 }
