@@ -25,7 +25,7 @@ export function getPageMeta(pathname: string, origin: string): PageMeta {
       return {
         title: `${canonicalName} name trend | name archive`,
         description: `Explore historical popularity trends for ${canonicalName} from 1900 to 2026 on namearchive.org.`,
-        ogImage: `${origin}/og/name/${encodeURIComponent(canonicalName)}.svg?v=${CURRENT_OG_IMAGE_VERSION}`,
+        ogImage: `${origin}/og/name/${encodeURIComponent(canonicalName)}.png?v=${CURRENT_OG_IMAGE_VERSION}`,
       };
     }
   }

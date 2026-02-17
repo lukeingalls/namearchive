@@ -1,10 +1,16 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { babyNamesDatabase, availableNames } from '../client/src/app/data/babyNamesData';
+import fs from "node:fs/promises";
+import path from "node:path";
+import sharp from "sharp";
+import {
+  babyNamesDatabase,
+  availableNames,
+} from "../client/src/app/data/babyNamesData";
 
-export const CURRENT_OG_IMAGE_VERSION = 'v1';
+export const CURRENT_OG_IMAGE_VERSION = "v1";
 
-const nameLookup = new Map(availableNames.map((name) => [name.toLowerCase(), name]));
+const nameLookup = new Map(
+  availableNames.map((name) => [name.toLowerCase(), name]),
+);
 
 export function resolveName(input: string): string | null {
   if (babyNamesDatabase[input]) {
@@ -16,11 +22,11 @@ export function resolveName(input: string): string | null {
 
 function escapeXml(value: string): string {
   return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 function buildSparklinePoints(name: string): string {
@@ -37,7 +43,7 @@ function buildSparklinePoints(name: string): string {
       const y = chartY + chartHeight - (point.percentage / 100) * chartHeight;
       return `${x.toFixed(2)},${y.toFixed(2)}`;
     })
-    .join(' ');
+    .join(" ");
 }
 
 function buildOgSvg(name: string): string {
@@ -67,26 +73,39 @@ function buildOgSvg(name: string): string {
 
 function getOgFilePath(serverRoot: string, name: string): string {
   const encodedName = encodeURIComponent(name);
-  return path.join(serverRoot, '.og-cache', CURRENT_OG_IMAGE_VERSION, `${encodedName}.svg`);
+  return path.join(
+    serverRoot,
+    ".og-cache",
+    CURRENT_OG_IMAGE_VERSION,
+    `${encodedName}.png`,
+  );
 }
 
-export async function ensureOgImage(serverRoot: string, name: string): Promise<string | null> {
+export async function ensureOgImage(
+  serverRoot: string,
+  name: string,
+): Promise<string | null> {
   const canonicalName = resolveName(name);
   if (!canonicalName) {
     return null;
   }
+  console.info("Ensuring OG image for name:", canonicalName);
 
-  const ogDir = path.join(serverRoot, '.og-cache', CURRENT_OG_IMAGE_VERSION);
+  const ogDir = path.join(serverRoot, ".og-cache", CURRENT_OG_IMAGE_VERSION);
   await fs.mkdir(ogDir, { recursive: true });
 
   const filePath = getOgFilePath(serverRoot, canonicalName);
 
   try {
     await fs.access(filePath);
+    console.info("OG image already exists, skipping generation:", filePath);
     return filePath;
   } catch {
+    console.info("OG image not found, generating:", filePath);
     const svg = buildOgSvg(canonicalName);
-    await fs.writeFile(filePath, svg, 'utf8');
+    await sharp(Buffer.from(svg))
+      .png({ quality: 90, compressionLevel: 9 })
+      .toFile(filePath);
     return filePath;
   }
 }
@@ -94,9 +113,9 @@ export async function ensureOgImage(serverRoot: string, name: string): Promise<s
 export async function serveOgImageRequest(
   serverRoot: string,
   pathname: string,
-  res: import('node:http').ServerResponse,
+  res: import("node:http").ServerResponse,
 ): Promise<boolean> {
-  const match = pathname.match(/^\/og\/name\/(.+)\.svg$/);
+  const match = pathname.match(/^\/og\/name\/(.+)\.png$/);
   if (!match) {
     return false;
   }
@@ -106,15 +125,15 @@ export async function serveOgImageRequest(
 
   if (!filePath) {
     res.statusCode = 404;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('Name not found');
+    res.setHeader("Content-Type", "text/plain");
+    res.end("Name not found");
     return true;
   }
 
-  const body = await fs.readFile(filePath, 'utf8');
+  const body = await fs.readFile(filePath);
   res.statusCode = 200;
-  res.setHeader('Content-Type', 'image/svg+xml; charset=utf-8');
-  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
   res.end(body);
   return true;
 }
