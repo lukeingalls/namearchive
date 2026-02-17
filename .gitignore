@@ -7,3 +7,7 @@ apps/server/data/*.sqlite-shm
 apps/server/data/*.sqlite-wal
 
 **/.env
+current
+releases/
+shared/
+apps/server/.og-cache/
