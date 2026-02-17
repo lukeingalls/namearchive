@@ -9,8 +9,16 @@ const nameLookup = new Map(
   getAllNames().map((name) => [name.toLowerCase(), name]),
 );
 
-export function resolveName(input: string): string | null {
-  return getCanonicalName(input) ?? nameLookup.get(input.toLowerCase()) ?? null;
+export function resolveName(input: string | null | undefined): string | null {
+  const normalized = input?.trim();
+  if (!normalized) {
+    return null;
+  }
+  return (
+    getCanonicalName(normalized) ??
+    nameLookup.get(normalized.toLowerCase()) ??
+    null
+  );
 }
 
 function escapeXml(value: string): string {
@@ -144,7 +152,7 @@ function getOgFilePath(serverRoot: string, name: string): string {
 
 export async function ensureOgImage(
   serverRoot: string,
-  name: string,
+  name: string | null | undefined,
 ): Promise<string | null> {
   const canonicalName = resolveName(name);
   if (!canonicalName) {
@@ -198,7 +206,7 @@ export async function serveOgImageRequest(
 
 export async function serveOgImageByName(
   serverRoot: string,
-  requestedName: string,
+  requestedName: string | null | undefined,
   res: import("node:http").ServerResponse,
 ) {
   const filePath = await ensureOgImage(serverRoot, requestedName);

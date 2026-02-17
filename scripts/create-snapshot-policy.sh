@@ -2,8 +2,8 @@
 set -euo pipefail
 
 PROJECT_ID="${PROJECT_ID:?PROJECT_ID is required}"
-REGION="${REGION:-us-central1}"
-ZONE="${ZONE:-us-central1-a}"
+REGION="${REGION:-us-west1}"
+ZONE="${ZONE:-us-west1-a}"
 POLICY_NAME="${POLICY_NAME:-namearchive-disk-policy}"
 DISK_NAME="${DISK_NAME:?DISK_NAME is required}"
 RETENTION_DAYS="${RETENTION_DAYS:-14}"

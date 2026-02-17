@@ -28,8 +28,8 @@ gcloud services enable \
 
 Recommended VM:
 - machine type: `e2-small`
-- region: `us-central1`
-- zone: `us-central1-a`
+- region: `us-west1`
+- zone: `us-west1-a`
 - boot disk: 20-30 GB SSD
 - static external IP attached
 
@@ -119,7 +119,7 @@ Optional hard-stop automation:
 - subscriber service stops VM when 100% threshold event arrives:
 
 ```bash
-gcloud compute instances stop namearchive-prod --zone=us-central1-a
+gcloud compute instances stop namearchive-host --zone=us-west1-a
 ```
 
 See `infra/gcp/budget-stop-vm.md` for the worker contract.
@@ -141,7 +141,7 @@ Create scheduled snapshot policy (every 6h, retain 14 days):
 
 ```bash
 gcloud compute resource-policies create snapshot-schedule namearchive-disk-policy \
-  --region=us-central1 \
+  --region=us-west1 \
   --max-retention-days=14 \
   --on-source-disk-delete=keep-auto-snapshots \
   --start-time=00:00 \
@@ -151,7 +151,7 @@ gcloud compute resource-policies create snapshot-schedule namearchive-disk-polic
 Attach policy to VM boot disk:
 
 ```bash
-gcloud compute disks add-resource-policies namearchive-prod \
-  --zone=us-central1-a \
+gcloud compute disks add-resource-policies namearchive-host \
+  --zone=us-west1-a \
   --resource-policies=namearchive-disk-policy
 ```

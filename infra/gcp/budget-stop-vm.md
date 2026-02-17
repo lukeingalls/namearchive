@@ -9,7 +9,7 @@ Use a Pub/Sub notification channel from Cloud Billing Budget and subscribe a sma
 3. If threshold >= 1.0 (100%), run:
 
 ```bash
-gcloud compute instances stop namearchive-prod --zone=us-west1-a
+gcloud compute instances stop namearchive-host --zone=us-west1-a
 ```
 
 ## Minimal worker contract
