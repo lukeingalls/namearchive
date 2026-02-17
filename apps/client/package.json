@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "bun run build:client && bun run build:ssr",
-    "build:client": "vite build --outDir dist/client",
-    "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist/server"
+    "build:client": "vite build --outDir dist/client --logLevel info",
+    "build:ssr": "vite build --logLevel info --ssr src/entry-server.tsx --outDir dist/server"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",

@@ -1,4 +1,5 @@
 import type { RouteContext } from "../../router/path-router";
+import type { ViteDevServer } from "vite";
 import { ensureOgImage } from "../../og-images";
 import { getNameFromPath } from "../meta";
 import { renderPage } from "../render-page";
@@ -6,6 +7,7 @@ import { renderPage } from "../render-page";
 interface RenderPageHandlerDeps {
   serverRoot: string;
   clientRoot: string;
+  vite: ViteDevServer | null;
 }
 
 export function createRenderPageHandler(deps: RenderPageHandlerDeps) {
@@ -24,6 +26,7 @@ export function createRenderPageHandler(deps: RenderPageHandlerDeps) {
       pathname: context.pathname,
       pathnameWithSearch: context.pathnameWithSearch,
       origin: context.requestOrigin,
+      vite: deps.vite,
       res,
     });
   };

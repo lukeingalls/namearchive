@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { ViteDevServer } from "vite";
 import { registerApiRoutes } from "./api/register-routes";
 import { registerPageRoutes } from "./pages/register-routes";
 import { PathRouter } from "./router/path-router";
@@ -20,10 +21,16 @@ function requestOrigin(
   return `${protocol}://${hostHeader}`;
 }
 
-export function createRequestHandler(port: number) {
+interface CreateRequestHandlerOptions {
+  port: number;
+  vite: ViteDevServer | null;
+}
+
+export function createRequestHandler(options: CreateRequestHandlerOptions) {
+  const { port, vite } = options;
   const router = new PathRouter();
   registerApiRoutes(router);
-  registerPageRoutes(router, { serverRoot, clientRoot });
+  registerPageRoutes(router, { serverRoot, clientRoot, vite });
 
   return async (
     req: import("node:http").IncomingMessage,
