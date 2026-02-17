@@ -12,11 +12,33 @@ import {
 } from "lucide-react";
 import { fetchNamePageData, type NamePageResponse } from "../data/nameApi";
 import { toast } from "sonner";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
+import { NameSearchBar } from "../components/NameSearchBar";
 
 export function NamePage() {
   const { name } = useParams<{ name: string }>();
   const [pageData, setPageData] = useState<NamePageResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const routeName = decodeURIComponent(name ?? "");
+  const effectiveName = pageData?.name ?? routeName;
+
+  const title = !name
+    ? "Name Not Found | name archive"
+    : pageData
+      ? `${pageData.name} name trend | name archive`
+      : isLoading
+        ? `${routeName} | name archive`
+        : "Name Not Found | name archive";
+
+  const description = !name
+    ? "We do not have records for this name yet. Explore other names in the archive."
+    : pageData
+      ? `Explore historical popularity trends for ${effectiveName} from 1900 to 2026 on namearchive.org.`
+      : isLoading
+        ? `Loading historical popularity trends for ${effectiveName} on namearchive.org.`
+        : "We do not have records for this name yet. Explore other names in the archive.";
+
+  useDocumentMeta(title, description);
 
   useEffect(() => {
     if (!name) {
@@ -283,6 +305,10 @@ export function NamePage() {
             other year is shown against that high point. That makes it easier to
             compare rise-and-fall patterns without population-size distortion.
           </p>
+        </div>
+
+        <div className="mt-10 mb-2 flex justify-center">
+          <NameSearchBar />
         </div>
 
         {/* Adjacent Names Navigation */}

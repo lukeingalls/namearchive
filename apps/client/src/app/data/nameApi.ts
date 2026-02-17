@@ -16,6 +16,10 @@ export interface NamePageResponse {
   nextName: string | null;
 }
 
+export interface NamesResponse {
+  names: string[];
+}
+
 export async function fetchHomeData(): Promise<HomeDataResponse> {
   const response = await fetch("/api/home");
   if (!response.ok) {
@@ -32,4 +36,14 @@ export async function fetchNamePageData(name: string): Promise<NamePageResponse>
   }
 
   return response.json();
+}
+
+export async function fetchNames(): Promise<string[]> {
+  const response = await fetch("/api/names");
+  if (!response.ok) {
+    throw new Error("Failed to fetch names");
+  }
+
+  const payload = (await response.json()) as NamesResponse;
+  return payload.names;
 }

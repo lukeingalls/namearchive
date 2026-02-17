@@ -1,7 +1,13 @@
 import { Link } from "react-router";
 import { Baby, BookOpen, Database, LineChart } from "lucide-react";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
 
 export function AboutPage() {
+  useDocumentMeta(
+    "About namearchive",
+    "Learn about name archive and its mission to make naming history easy to explore.",
+  );
+
   return (
     <div>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12">

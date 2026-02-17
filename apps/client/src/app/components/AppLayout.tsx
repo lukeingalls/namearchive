@@ -1,5 +1,5 @@
-import { Outlet } from 'react-router';
-import { SiteFooter } from './SiteFooter';
+import { Outlet } from "react-router";
+import { SiteFooter } from "./SiteFooter";
 
 export function AppLayout() {
   return (

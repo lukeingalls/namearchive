@@ -3,6 +3,8 @@ import { Link } from "react-router";
 import { TrendingUp, Baby } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { fetchHomeData, type NameData } from "../data/nameApi";
+import { useDocumentMeta } from "../hooks/useDocumentMeta";
+import { NameSearchBar } from "../components/NameSearchBar";
 
 function NameSparkline({
   data,
@@ -45,6 +47,10 @@ export function HomePage() {
   const [trends, setTrends] = useState<Record<string, NameData[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const trendingNames = ["Claude", "ChatGPT", "Grok"];
+  useDocumentMeta(
+    "name archive",
+    "Explore historical U.S. baby naming trends from 1900 to 2026 on namearchive.org.",
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -138,6 +144,10 @@ export function HomePage() {
               </Link>
             ))}
           </div>
+        </div>
+
+        <div className="mb-10 flex justify-center">
+          <NameSearchBar />
         </div>
 
         {/* Names Grid */}
